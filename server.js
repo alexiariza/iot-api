@@ -1,5 +1,14 @@
 const express = require("express");
-const fetch = require("node-fetch");
+const response = await fetch(url, {
+    method: "GET",
+    headers: {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)",
+        "Accept": "text/html,application/xhtml+xml",
+        "Accept-Language": "en-US,en;q=0.9",
+        "Connection": "keep-alive",
+        "Referer": "https://irigatii-smart.infinityfreeapp.com/"
+    }
+});
 
 const app = express();
 app.use(express.urlencoded({ extended: true }));
