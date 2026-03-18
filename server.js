@@ -1,48 +1,38 @@
 const express = require("express");
-const mysql = require("mysql2");
+const fetch = require("node-fetch");
 
 const app = express();
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
-// 🔥 DB (folosești DB ta de pe InfinityFree)
-const db = mysql.createConnection({
-    host: "sql300.infinityfree.com",
-    user: "if0_XXXXXXX",
-    password: "PAROLA_TA",
-    database: "if0_XXXXXXX_lora_db"
-});
-
-db.connect(err => {
-    if (err) console.log(err);
-    else console.log("DB CONNECTED");
-});
-
-// 🔥 INSERT DATA (de la Python)
-app.post("/insert", (req, res) => {
+app.post("/insert", async (req, res) => {
 
     const { temperature, humidity, pressure, light } = req.body;
 
-    const sql = `
-    INSERT INTO sensor_data (temperature, humidity, pressure, illuminance)
-    VALUES (?, ?, ?, ?)
-    `;
+    const url = `https://irigatii-smart.infinityfreeapp.com/backend/insert_data.php?temperature=${temperature}&humidity=${humidity}&pressure=${pressure}&light=${light}`;
 
-    db.query(sql, [temperature, humidity, pressure, light], (err) => {
-        if (err) {
-            console.log(err);
-            return res.send("ERROR");
-        }
+    try {
+        const response = await fetch(url, {
+            headers: {
+                "User-Agent": "Mozilla/5.0"
+            }
+        });
+
+        const text = await response.text();
+        console.log("PHP RESPONSE:", text);
 
         res.send("OK");
-    });
+
+    } catch (err) {
+        console.log(err);
+        res.send("ERROR");
+    }
 });
 
-// 🔥 TEST
-app.get("/", (req, res) => {
+app.get("/", (req,res)=>{
     res.send("API WORKING");
 });
 
 app.listen(10000, () => {
-    console.log("Server running on 10000");
+    console.log("Server running");
 });
