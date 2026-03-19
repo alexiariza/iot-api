@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+<meta charset="UTF-8">
+<title>Istoric date</title>
+
+<link rel="stylesheet" href="css/style.css">
+
+</head>
+
+<body>
+
+<header>
+<h1>Sistem irigații inteligente</h1>
+</header>
+
+<div class="container">
+
+<nav class="sidebar">
+<ul>
+<li><a href="index.html">Dashboard</a></li>
+<li><a href="grafice.html">Grafice senzori</a></li>
+<li><a href="istoric.html">Istoric date</a></li>
+</ul>
+</nav>
+
+<main class="content">
+
+<h2>Istoric date senzori</h2>
+
+<table class="history-table" id="historyTable">
+<thead>
+<tr>
+<th>Data</th>
+<th>Temperatura (°C)</th>
+<th>Umiditate (%)</th>
+<th>Presiune (hPa)</th>
+<th>Lumină (lux)</th>
+</tr>
+</thead>
+
+<tbody>
+</tbody>
+
+</table>
+
+</main>
+</div>
+
+<script>
+
+async function loadHistory(){
+  try{
+    const res = await fetch("https://iot-api-1-5qfd.onrender.com/data");
+    const data = await res.json();
+
+    const table = document.querySelector("#historyTable tbody");
+    table.innerHTML = "";
+
+    data.forEach(row => {
+      let tr = document.createElement("tr");
+
+      tr.innerHTML = `
+        <td>${new Date(row.created_at).toLocaleString()}</td>
+        <td>${row.temperature}</td>
+        <td>${row.humidity}</td>
+        <td>${row.pressure}</td>
+        <td>${row.illuminance}</td>
+      `;
+
+      table.appendChild(tr);
+    });
+
+  }catch(err){
+    console.error(err);
+  }
+}
+
+loadHistory();
+
+</script>
+
+</body>
+</html>
