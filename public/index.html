@@ -113,10 +113,10 @@ async function loadData() {
     document.getElementById("press").innerText = p + " hPa";
     document.getElementById("light").innerText = l + " lux";
 
-    setStatus("temp_status", t > 35 ? "🔴 Temperatură mare" : "🟢 OK");
-    setStatus("hum_status", h < 30 ? "🔴 Umiditate mică" : "🟢 OK");
-    setStatus("press_status", p < 980 ? "🟡 Presiune scăzută" : "🟢 OK");
-    setStatus("light_status", l > 800 ? "🟡 Lumină mare" : "🟢 OK");
+    setStatus("temp_status", t > 35 ? "🔴 Temperatură mare" : "🟢 Temperatura normala");
+    setStatus("hum_status", h < 30 ? "🔴 Umiditate mică" : "🟢 Umiditate normala");
+    setStatus("press_status", p < 980 ? "🟡 Presiune scăzută" : "🟢 Presiune normala");
+    setStatus("light_status", l > 800 ? "🟡 Lumină mare" : "🟢 Lumina normala");
 
   } catch(err){
     console.error(err);
