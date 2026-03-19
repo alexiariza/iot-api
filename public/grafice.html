@@ -84,8 +84,12 @@ try{
 const res = await fetch("https://iot-api-1-5qfd.onrender.com/data");
 const data = await res.json();
 
-// eliminăm valorile null
-const clean = data.filter(d => d.temperature !== null);
+const clean = data.filter(d => 
+  d.temperature !== null &&
+  d.humidity !== null &&
+  d.pressure !== null &&
+  d.illuminance !== null
+);
 
 let labels=[],temps=[],hums=[],press=[],light=[];
 
