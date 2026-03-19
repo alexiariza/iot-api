@@ -54,7 +54,7 @@ app.post("/insert", async (req, res) => {
   }
 });
 
-app.listen(process.env.PORT || 10000);
+
 app.get("/data", async (req, res) => {
   try {
     const result = await pool.query("SELECT * FROM sensor_data ORDER BY id DESC");
@@ -64,3 +64,4 @@ app.get("/data", async (req, res) => {
     res.status(500).send("ERROR");
   }
 });
+app.listen(process.env.PORT || 10000);
