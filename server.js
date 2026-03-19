@@ -55,3 +55,12 @@ app.post("/insert", async (req, res) => {
 });
 
 app.listen(process.env.PORT || 10000);
+app.get("/data", async (req, res) => {
+  try {
+    const result = await pool.query("SELECT * FROM sensor_data ORDER BY id DESC");
+    res.json(result.rows);
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("ERROR");
+  }
+});
