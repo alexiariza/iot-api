@@ -14,10 +14,29 @@ const pool = new Pool({
   ssl: { rejectUnauthorized: false },
 });
 
+// 🔥 AUTO CREATE TABLE
+async function initDB() {
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS sensor_data (
+      id SERIAL PRIMARY KEY,
+      temperature FLOAT,
+      humidity FLOAT,
+      pressure FLOAT,
+      illuminance FLOAT,
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    );
+  `);
+  console.log("TABLE READY");
+}
+
+initDB();
+
+// 🔥 TEST
 app.get("/", (req, res) => {
   res.send("API WORKING");
 });
 
+// 🔥 INSERT
 app.post("/insert", async (req, res) => {
   try {
     const { temperature, humidity, pressure, light } = req.body;
