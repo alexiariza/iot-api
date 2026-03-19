@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="ro">
+
+<head>
+<meta charset="UTF-8">
+<title>Sistem irigații inteligente</title>
+
+<link rel="stylesheet" href="css/style.css?v=3">
+
+<style>
+.toast{
+position:fixed;
+top:20px;
+right:20px;
+background:#ff4d4d;
+color:white;
+padding:15px 25px;
+border-radius:8px;
+font-weight:bold;
+z-index:9999;
+box-shadow:0 5px 15px rgba(0,0,0,0.3);
+}
+</style>
+
+</head>
+
+<body>
+
+<header>
+<h1>Sistem irigații inteligente</h1>
+</header>
+
+<div class="container">
+
+<nav class="sidebar">
+<ul>
+<li><a href="index.html">Dashboard</a></li>
+<li><a href="grafice.html">Grafice senzori</a></li>
+<li><a href="istoric.html">Istoric date</a></li>
+</ul>
+</nav>
+
+<main class="content">
+
+<h2>Dashboard</h2>
+
+<h3>Stare sistem</h3>
+
+<div class="system-grid">
+
+<div class="system-card">
+<div class="system-state" id="temp_status">⚪ Fără date</div>
+</div>
+
+<div class="system-card">
+<div class="system-state" id="hum_status">⚪ Fără date</div>
+</div>
+
+<div class="system-card">
+<div class="system-state" id="press_status">⚪ Fără date</div>
+</div>
+
+<div class="system-card">
+<div class="system-state" id="light_status">⚪ Fără date</div>
+</div>
+
+</div>
+
+<div class="sensor-cards">
+
+<div class="sensor-card">
+<div class="sensor-title">🌡 Temperatură</div>
+<div class="sensor-value" id="temp">-- °C</div>
+</div>
+
+<div class="sensor-card">
+<div class="sensor-title">💧 Umiditate</div>
+<div class="sensor-value" id="hum">-- %</div>
+</div>
+
+<div class="sensor-card">
+<div class="sensor-title">🌬 Presiune</div>
+<div class="sensor-value" id="press">-- hPa</div>
+</div>
+
+<div class="sensor-card">
+<div class="sensor-title">☀ Lumină</div>
+<div class="sensor-value" id="light">-- lux</div>
+</div>
+
+</div>
+
+<h2>Control actuator</h2>
+
+<button onclick="controlIrigation('on')">
+PORNEȘTE irigația
+</button>
+
+<button onclick="controlIrigation('off')">
+OPREȘTE irigația
+</button>
+
+<div id="irrigation-status" style="margin-top:20px;font-size:20px;font-weight:bold;">
+Stare irigație: <span style="color:red;">OPRITĂ</span>
+</div>
+
+</main>
+</div>
+
+<script>
+
+// 🔥 LOAD DATA DIN API
+async function loadData() {
+  try {
+    const res = await fetch("https://iot-api-1-5qfd.onrender.com/data");
+    const data = await res.json();
+
+    if (!data.length) return;
+
+    const d = data[0];
+
+    let t = Number(d.temperature) || 0;
+    let h = Number(d.humidity) || 0;
+    let p = Number(d.pressure) || 0;
+    let l = Number(d.illuminance) || 0;
+
+    // valori
+    document.getElementById("temp").innerText = t + " °C";
+    document.getElementById("hum").innerText = h + " %";
+    document.getElementById("press").innerText = p + " hPa";
+    document.getElementById("light").innerText = l + " lux";
+
+    // TEMP
+    if(t > 35){
+      setStatus("temp_status","🔴 Temperatură foarte mare");
+      showAlert("⚠ Temperatură foarte mare!");
+    } else if(t > 30){
+      setStatus("temp_status","🟡 Temperatură ridicată");
+    } else {
+      setStatus("temp_status","🟢 Temperatură normală");
+    }
+
+    // HUM
+    if(h < 30){
+      setStatus("hum_status","🔴 Umiditate foarte scăzută");
+      showAlert("⚠ Umiditate foarte scăzută!");
+    } else if(h < 40){
+      setStatus("hum_status","🟡 Umiditate scăzută");
+    } else {
+      setStatus("hum_status","🟢 Umiditate normală");
+    }
+
+    // PRESS
+    if(p < 980){
+      setStatus("press_status","🟡 Presiune scăzută");
+    } else {
+      setStatus("press_status","🟢 Presiune normală");
+    }
+
+    // LIGHT
+    if(l > 800){
+      setStatus("light_status","🟡 Lumină foarte puternică");
+    } else {
+      setStatus("light_status","🟢 Lumină normală");
+    }
+
+  } catch(err){
+    console.error("Eroare API:", err);
+  }
+}
+
+// helper
+function setStatus(id,text){
+  document.getElementById(id).innerText = text;
+}
+
+// 🔥 CONTROL IRIGAȚIE (PASUL URMĂTOR)
+function controlIrigation(action){
+  alert("Urmează să conectăm cu backend-ul");
+}
+
+// 🔥 ALERTĂ UI
+function showAlert(message){
+  let alert = document.createElement("div");
+  alert.className = "toast";
+  alert.innerText = message;
+  document.body.appendChild(alert);
+
+  setTimeout(()=> alert.remove(), 5000);
+}
+
+// 🔁 REFRESH
+loadData();
+setInterval(loadData, 5000);
+
+</script>
+
+</body>
+</html>
