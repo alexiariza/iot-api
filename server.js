@@ -1,6 +1,8 @@
 import express from "express";
 import pkg from "pg";
 import cors from "cors";
+import path from "path";
+import { fileURLToPath } from "url";
 
 const { Pool } = pkg;
 
@@ -9,15 +11,19 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// 🔥 ASTA LIPSEA
-app.use(express.static("public"));
+// 🔥 FIX PUBLIC FOLDER (FOARTE IMPORTANT)
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
+app.use(express.static(path.join(__dirname, "public")));
+
+// 🔥 DB CONNECTION
 const pool = new Pool({
   connectionString: "postgresql://iot_db_3whd_user:ql42HXPaY8poPqjoIrWz45yjdKSmITmJ@dpg-d6tvtqchg0os738338j0-a.oregon-postgres.render.com/iot_db_3whd",
   ssl: { rejectUnauthorized: false },
 });
 
-// 🔥 AUTO CREATE TABLE
+// 🔥 CREATE TABLE
 async function initDB() {
   await pool.query(`
     CREATE TABLE IF NOT EXISTS sensor_data (
@@ -29,13 +35,17 @@ async function initDB() {
       created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     );
   `);
-  console.log("TABLE READY");
+  console.log("✅ TABLE READY");
 }
 
 initDB();
 
+// 🔥 TEST API
+app.get("/", (req, res) => {
+  res.send("API WORKING");
+});
 
-// 🔥 INSERT
+// 🔥 INSERT DATA
 app.post("/insert", async (req, res) => {
   try {
     const { temperature, humidity, pressure, light } = req.body;
@@ -56,7 +66,9 @@ app.post("/insert", async (req, res) => {
 // 🔥 GET DATA
 app.get("/data", async (req, res) => {
   try {
-    const result = await pool.query("SELECT * FROM sensor_data ORDER BY id DESC");
+    const result = await pool.query(
+      "SELECT * FROM sensor_data ORDER BY id DESC"
+    );
     res.json(result.rows);
   } catch (err) {
     console.error(err);
@@ -64,4 +76,7 @@ app.get("/data", async (req, res) => {
   }
 });
 
-app.listen(process.env.PORT || 10000);
+// 🔥 START SERVER
+app.listen(process.env.PORT || 10000, () => {
+  console.log("🚀 Server running");
+});
