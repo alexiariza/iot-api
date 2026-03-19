@@ -80,3 +80,16 @@ app.get("/data", async (req, res) => {
 app.listen(process.env.PORT || 10000, () => {
   console.log("🚀 Server running");
 });
+app.post("/command", async (req, res) => {
+  try {
+    const { command } = req.body;
+
+    console.log("🔥 COMMAND RECEIVED:", command);
+
+    res.send("COMMAND OK");
+
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("ERROR");
+  }
+});
