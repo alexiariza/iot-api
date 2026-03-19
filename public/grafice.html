@@ -81,7 +81,7 @@ async function loadChart(){
 
 try{
 
-const res = await fetch("/data"); // 🔥 IMPORTANT (NU URL COMPLET)
+const res = await fetch("https://iot-api-1-5qfd.onrender.com/data");
 const data = await res.json();
 
 // eliminăm valorile null
