@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="ro">
+
+<head>
+<meta charset="UTF-8">
+<title>Grafice senzori</title>
+
+<link rel="stylesheet" href="css/style.css">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+</head>
+
+<body>
+
+<header>
+<h1>Sistem irigații inteligente</h1>
+</header>
+
+<div class="container">
+
+<nav class="sidebar">
+<ul>
+<li><a href="index.html">Dashboard</a></li>
+<li><a href="grafice.html">Grafice senzori</a></li>
+<li><a href="istoric.html">Istoric date</a></li>
+</ul>
+</nav>
+
+<main class="content">
+
+<div class="charts-container">
+
+<div class="chart-box">
+<h3>Temperatura</h3>
+<canvas id="tempChart"></canvas>
+</div>
+
+<div class="chart-box">
+<h3>Umiditate</h3>
+<canvas id="humChart"></canvas>
+</div>
+
+<div class="chart-box">
+<h3>Presiune</h3>
+<canvas id="pressChart"></canvas>
+</div>
+
+<div class="chart-box">
+<h3>Lumină</h3>
+<canvas id="lightChart"></canvas>
+</div>
+
+</div>
+
+</main>
+</div>
+
+<script>
+
+const tempChart = new Chart(document.getElementById("tempChart"),{
+type:'line',
+data:{labels:[],datasets:[{label:'Temperatura',data:[],borderColor:'red'}]}
+});
+
+const humChart = new Chart(document.getElementById("humChart"),{
+type:'line',
+data:{labels:[],datasets:[{label:'Umiditate',data:[],borderColor:'blue'}]}
+});
+
+const pressChart = new Chart(document.getElementById("pressChart"),{
+type:'line',
+data:{labels:[],datasets:[{label:'Presiune',data:[],borderColor:'green'}]}
+});
+
+const lightChart = new Chart(document.getElementById("lightChart"),{
+type:'line',
+data:{labels:[],datasets:[{label:'Lumină',data:[],borderColor:'orange'}]}
+});
+
+async function loadChart(){
+
+try{
+
+const res = await fetch("/data"); // 🔥 IMPORTANT (NU URL COMPLET)
+const data = await res.json();
+
+// eliminăm valorile null
+const clean = data.filter(d => d.temperature !== null);
+
+let labels=[],temps=[],hums=[],press=[],light=[];
+
+clean.slice(0,30).reverse().forEach(row=>{
+
+labels.push(new Date(row.created_at).toLocaleTimeString());
+
+temps.push(Number(row.temperature));
+hums.push(Number(row.humidity));
+press.push(Number(row.pressure));
+light.push(Number(row.illuminance));
+
+});
+
+tempChart.data.labels = labels;
+tempChart.data.datasets[0].data = temps;
+
+humChart.data.labels = labels;
+humChart.data.datasets[0].data = hums;
+
+pressChart.data.labels = labels;
+pressChart.data.datasets[0].data = press;
+
+lightChart.data.labels = labels;
+lightChart.data.datasets[0].data = light;
+
+tempChart.update();
+humChart.update();
+pressChart.update();
+lightChart.update();
+
+}catch(e){
+console.error("Eroare grafice:",e);
+}
+
+}
+
+loadChart();
+setInterval(loadChart,5000);
+
+</script>
+
+</body>
+</html>
