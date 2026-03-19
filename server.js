@@ -9,6 +9,9 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+// 🔥 ASTA LIPSEA
+app.use(express.static("public"));
+
 const pool = new Pool({
   connectionString: "postgresql://iot_db_3whd_user:ql42HXPaY8poPqjoIrWz45yjdKSmITmJ@dpg-d6tvtqchg0os738338j0-a.oregon-postgres.render.com/iot_db_3whd",
   ssl: { rejectUnauthorized: false },
@@ -54,7 +57,7 @@ app.post("/insert", async (req, res) => {
   }
 });
 
-
+// 🔥 GET DATA
 app.get("/data", async (req, res) => {
   try {
     const result = await pool.query("SELECT * FROM sensor_data ORDER BY id DESC");
@@ -64,4 +67,5 @@ app.get("/data", async (req, res) => {
     res.status(500).send("ERROR");
   }
 });
+
 app.listen(process.env.PORT || 10000);
