@@ -76,9 +76,12 @@ app.post("/command", async (req, res) => {
 // 🔥 GET DATA
 app.get("/data", async (req, res) => {
   try {
-    "SELECT * FROM sensor_data WHERE temperature IS NOT NULL ORDER BY id DESC"
+    const result = await pool.query(
+      "SELECT * FROM sensor_data WHERE temperature IS NOT NULL ORDER BY id DESC"
     );
+
     res.json(result.rows);
+
   } catch (err) {
     console.error(err);
     res.status(500).send("ERROR");
