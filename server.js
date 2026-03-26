@@ -77,7 +77,7 @@ app.post("/command", async (req, res) => {
 app.get("/data", async (req, res) => {
   try {
     const result = await pool.query(
-      "SELECT * FROM sensor_data WHERE temperature IS NOT NULL ORDER BY id DESC"
+      "SELECT * FROM sensor_data ORDER BY id DESC"
     );
 
     res.json(result.rows);
