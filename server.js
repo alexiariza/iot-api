@@ -90,4 +90,19 @@ app.get("/data", async (req, res) => {
 app.listen(process.env.PORT || 10000, () => {
   console.log("🚀 Server running");
 });
+app.post("/insert", async (req, res) => {
+  try {
+    const { temperature, humidity, pressure, illuminance } = req.body;
 
+    await pool.query(
+      "INSERT INTO sensor_data (temperature, humidity, pressure, illuminance) VALUES ($1,$2,$3,$4)",
+      [temperature, humidity, pressure, illuminance]
+    );
+
+    res.send("DATA SAVED");
+
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("ERROR");
+  }
+});
