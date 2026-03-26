@@ -44,6 +44,14 @@ initDB();
 app.get("/", (req, res) => {
   res.send("API WORKING");
 });
+app.get("/fix-db", async (req, res) => {
+  try {
+    await pool.query("ALTER TABLE sensor_data ADD COLUMN command INTEGER");
+    res.send("✅ command column added");
+  } catch (err) {
+    res.send("❌ " + err.message);
+  }
+});
 
 // 🔥 INSERT DATA
 app.post("/command", async (req, res) => {
