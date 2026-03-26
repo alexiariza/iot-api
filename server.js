@@ -46,17 +46,20 @@ app.get("/", (req, res) => {
 });
 
 // 🔥 INSERT DATA
-app.post("/insert", async (req, res) => {
+app.post("/command", async (req, res) => {
   try {
-    const { temperature, humidity, pressure, light } = req.body;
+    const { command } = req.body;
 
+    console.log("🔥 COMMAND RECEIVED:", command);
+
+    // 🔥 salvăm comanda în DB
     await pool.query(
-      `INSERT INTO sensor_data (temperature, humidity, pressure, illuminance)
-       VALUES ($1, $2, $3, $4)`,
-      [temperature, humidity, pressure, light]
+      "INSERT INTO sensor_data (temperature, humidity, pressure, illuminance) VALUES ($1,$2,$3,$4)",
+      [null, null, null, command] // folosim câmpul light ca "command"
     );
 
-    res.send("OK");
+    res.send("COMMAND SAVED");
+
   } catch (err) {
     console.error(err);
     res.status(500).send("ERROR");
