@@ -61,11 +61,10 @@ app.post("/command", async (req, res) => {
     console.log("🔥 COMMAND RECEIVED:", command);
 
     // 🔥 salvăm comanda în DB
-    await pool.query(
-      "INSERT INTO sensor_data (temperature, humidity, pressure, illuminance) VALUES ($1,$2,$3,$4)",
-      [null, null, null, command] // folosim câmpul light ca "command"
-    );
-
+      await pool.query(
+        "INSERT INTO sensor_data (command) VALUES ($1)",
+        [command]
+      );
     res.send("COMMAND SAVED");
 
   } catch (err) {
