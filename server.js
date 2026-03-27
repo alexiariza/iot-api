@@ -100,12 +100,27 @@ app.post("/insert", async (req, res) => {
   try {
     const { temperature, humidity, pressure, illuminance } = req.body;
 
+    // 🔥 ALERTĂ (ACUM E CORECT)
+    if (
+      temperature != null &&
+      humidity != null &&
+      pressure != null &&
+      illuminance != null
+    ) {
+      if (temperature > 15) {
+        await sendEmail(
+          "⚠️ Temperatură mare",
+          `Temperatura este prea mare: ${temperature}`
+        );
+      }
+    }
+
     await pool.query(
       "INSERT INTO sensor_data (temperature, humidity, pressure, illuminance) VALUES ($1,$2,$3,$4)",
       [temperature, humidity, pressure, illuminance]
     );
 
-    res.json({ status: "ok" }); // 🔥 FIX JSON
+    res.json({ status: "ok" });
 
   } catch (err) {
     console.error(err);
