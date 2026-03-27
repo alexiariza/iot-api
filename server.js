@@ -7,6 +7,8 @@ const path = require("path");
 const nodemailer = require("nodemailer");
 
 const app = express();
+
+// 🔥 LIMITS
 const LIMITS = {
   temperature: { min: 0, max: 35 },
   humidity: { min: 20, max: 80 },
@@ -14,13 +16,16 @@ const LIMITS = {
   illuminance: { min: 0, max: 1000 }
 };
 
+// 🔥 ANTI-SPAM
 let lastAlertTime = 0;
 const ALERT_INTERVAL = 60000; // 60 sec
 
+// 🔥 VALIDARE
 function isValid(value) {
   return value !== null && value !== undefined && !isNaN(value);
 }
 
+// 🔥 ALERT CHECK
 function checkAlerts({ temperature, humidity, pressure, illuminance }) {
   let alerts = [];
 
@@ -50,51 +55,60 @@ function checkAlerts({ temperature, humidity, pressure, illuminance }) {
 app.use(cors());
 app.use(express.json());
 
-// 🔥 PUBLIC FOLDER
+// 🔥 STATIC
 app.use(express.static(path.join(__dirname, "public")));
 
 // 🔥 DB CONNECTION
 const pool = new Pool({
-  connectionString: "postgresql://iot_db_3whd_user:ql42HXPaY8poPqjoIrWz45yjdKSmITmJ@dpg-d6tvtqchg0os738338j0-a.oregon-postgres.render.com/iot_db_3whd",
+  connectionString: process.env.DATABASE_URL,
   ssl: { rejectUnauthorized: false },
 });
 
 // 🔥 CREATE TABLE
 async function initDB() {
-  await pool.query(`
-    CREATE TABLE IF NOT EXISTS sensor_data (
-      id SERIAL PRIMARY KEY,
-      temperature FLOAT,
-      humidity FLOAT,
-      pressure FLOAT,
-      illuminance FLOAT,
-      command INTEGER,
-      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-    );
-  `);
-  console.log("✅ TABLE READY");
+  try {
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS sensor_data (
+        id SERIAL PRIMARY KEY,
+        temperature FLOAT,
+        humidity FLOAT,
+        pressure FLOAT,
+        illuminance FLOAT,
+        command INTEGER,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+    `);
+    console.log("✅ TABLE READY");
+  } catch (err) {
+    console.error("❌ DB ERROR:", err.message);
+  }
 }
 
 initDB();
 
 // 🔥 EMAIL FUNCTION
 async function sendEmail(subject, message) {
-  let transporter = nodemailer.createTransport({
-    service: "gmail",
-    auth: {
-      user: process.env.EMAIL_USER,
-      pass: process.env.EMAIL_PASS
-    }
-  });
+  try {
+    let transporter = nodemailer.createTransport({
+      service: "gmail",
+      auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS
+      }
+    });
 
-  let info = await transporter.sendMail({
-    from: `"Sistem Irigatii" <${process.env.EMAIL_USER}>`,
-    to: process.env.EMAIL_USER,
-    subject: subject,
-    text: message
-  });
+    let info = await transporter.sendMail({
+      from: `"Sistem Irigatii" <${process.env.EMAIL_USER}>`,
+      to: process.env.EMAIL_USER,
+      subject,
+      text: message
+    });
 
-  console.log("📧 Email trimis:", info.response);
+    console.log("📧 Email trimis:", info.response);
+
+  } catch (err) {
+    console.error("❌ EMAIL ERROR:", err.message);
+  }
 }
 
 // 🔥 TEST ROUTE
@@ -102,12 +116,12 @@ app.get("/", (req, res) => {
   res.send("API WORKING");
 });
 
-// 🔥 INSERT SENSOR DATA + ALERTĂ EMAIL
+// 🔥 INSERT + ALERTĂ
 app.post("/insert", async (req, res) => {
   try {
     const { temperature, humidity, pressure, illuminance } = req.body;
 
-    // 🔥 IGNORĂ dacă toate sunt invalide
+    // 🔥 ignoră complet dacă toate sunt invalide
     if (
       !isValid(temperature) &&
       !isValid(humidity) &&
@@ -117,13 +131,12 @@ app.post("/insert", async (req, res) => {
       return res.send("IGNORED - INVALID DATA");
     }
 
-    // 🔥 salvează în DB
     await pool.query(
       "INSERT INTO sensor_data (temperature, humidity, pressure, illuminance) VALUES ($1,$2,$3,$4)",
       [temperature, humidity, pressure, illuminance]
     );
 
-    // 🔥 verifică alertele
+    // 🔥 ALERTĂ
     const alerts = checkAlerts({ temperature, humidity, pressure, illuminance });
 
     if (alerts.length > 0 && Date.now() - lastAlertTime > ALERT_INTERVAL) {
@@ -137,7 +150,7 @@ app.post("/insert", async (req, res) => {
     res.send("DATA SAVED");
 
   } catch (err) {
-    console.error(err);
+    console.error("❌ INSERT ERROR:", err.message);
     res.status(500).send("ERROR");
   }
 });
@@ -175,10 +188,7 @@ app.get("/data", async (req, res) => {
   }
 });
 
-// 🔥 START SERVER
+// 🔥 START
 app.listen(process.env.PORT || 10000, () => {
   console.log("🚀 Server running");
 });
-
-// 🔥 TEST EMAIL LA START
-sendEmail("TEST SISTEM", "Emailul functioneaza!");
