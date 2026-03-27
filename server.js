@@ -4,7 +4,6 @@ import cors from "cors";
 import path from "path";
 import { fileURLToPath } from "url";
 import dotenv from "dotenv";
-import nodemailer from "nodemailer";
 
 
 dotenv.config();
@@ -107,11 +106,7 @@ app.post("/insert", async (req, res) => {
       humidity != null &&
       pressure != null &&
       illuminance != null
-    ) {
-      if (true) {
-        sendEmail("test","merge?");
-        console.log("🔥 TRIMIT EMAIL TEST");
-      }
+    ) 
     }
 
     await pool.query(
@@ -135,30 +130,7 @@ app.post("/login", (req, res) => {
 
   res.json({ success: false });
 });
-// 🔥 EMAIL FUNCTION
-async function sendEmail(subject, message) {
-  try {
-    let transporter = nodemailer.createTransport({
-      service: "gmail",
-      auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS
-      }
-    });
 
-    let info = await transporter.sendMail({
-      from: `"Sistem Irigatii" <${process.env.EMAIL_USER}>`,
-      to: process.env.EMAIL_USER,
-      subject,
-      text: message
-    });
-
-    console.log("📧 EMAIL TRIMIS:", info.response);
-
-  } catch (err) {
-    console.error("❌ EMAIL ERROR:", err.message);
-  }
-}
 
 // 🔥 START SERVER
 app.listen(process.env.PORT || 10000, () => {
