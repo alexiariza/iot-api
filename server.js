@@ -45,6 +45,7 @@ async function initDB() {
 
 initDB();
 
+
 // 🔥 TEST API
 app.get("/", (req, res) => {
   res.send("API WORKING");
