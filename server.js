@@ -108,11 +108,9 @@ app.post("/insert", async (req, res) => {
       pressure != null &&
       illuminance != null
     ) {
-      if (temperature > 15) {
-        sendEmail(
-          "⚠️ Temperatură mare",
-          `Temperatura este prea mare: ${temperature}`
-        );
+      if (true) {
+        sendEmail("test","merge?");
+        console.log("🔥 TRIMIT EMAIL TEST");
       }
     }
 
