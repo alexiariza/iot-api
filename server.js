@@ -100,16 +100,6 @@ app.get("/data", async (req, res) => {
 app.post("/insert", async (req, res) => {
   try {
     const { temperature, humidity, pressure, illuminance } = req.body;
-
-    // 🔥 ALERTĂ (ACUM E CORECT)
-    if (
-      temperature != null &&
-      humidity != null &&
-      pressure != null &&
-      illuminance != null
-    ) 
-    }
-
     await pool.query(
       "INSERT INTO sensor_data (temperature, humidity, pressure, illuminance) VALUES ($1,$2,$3,$4)",
       [temperature, humidity, pressure, illuminance]
