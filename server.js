@@ -58,7 +58,7 @@ app.use(express.json());
 // 🔥 STATIC
 app.use(express.static(path.join(__dirname, "public")));
 
-// 🔥 DB CONNECTION
+// 🔥 DB (IMPORTANT → folosește DATABASE_URL din Render)
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
   ssl: { rejectUnauthorized: false },
@@ -121,7 +121,7 @@ app.post("/insert", async (req, res) => {
   try {
     const { temperature, humidity, pressure, illuminance } = req.body;
 
-    // 🔥 ignoră complet dacă toate sunt invalide
+    // 🔥 ignoră dacă toate sunt invalide
     if (
       !isValid(temperature) &&
       !isValid(humidity) &&
@@ -131,6 +131,7 @@ app.post("/insert", async (req, res) => {
       return res.send("IGNORED - INVALID DATA");
     }
 
+    // 🔥 salvare DB
     await pool.query(
       "INSERT INTO sensor_data (temperature, humidity, pressure, illuminance) VALUES ($1,$2,$3,$4)",
       [temperature, humidity, pressure, illuminance]
@@ -188,7 +189,7 @@ app.get("/data", async (req, res) => {
   }
 });
 
-// 🔥 START
+// 🔥 START SERVER
 app.listen(process.env.PORT || 10000, () => {
   console.log("🚀 Server running");
 });
