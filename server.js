@@ -126,7 +126,15 @@ app.post("/insert", async (req, res) => {
     res.status(500).json({ error: "server error" });
   }
 });
+app.post("/login", (req, res) => {
+  const { username, password } = req.body;
 
+  if (username === "admin" && password === "admin123") {
+    return res.json({ success: true });
+  }
+
+  res.json({ success: false });
+});
 // 🔥 EMAIL FUNCTION
 async function sendEmail(subject, message) {
   try {
