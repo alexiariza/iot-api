@@ -109,7 +109,7 @@ app.post("/insert", async (req, res) => {
       illuminance != null
     ) {
       if (temperature > 15) {
-        await sendEmail(
+        sendEmail(
           "⚠️ Temperatură mare",
           `Temperatura este prea mare: ${temperature}`
         );
