@@ -5,6 +5,7 @@ import path from "path";
 import { fileURLToPath } from "url";
 import dotenv from "dotenv";
 import nodemailer from "nodemailer";
+import fetch from "node-fetch";
 
 dotenv.config();
 
@@ -131,29 +132,27 @@ app.post("/insert", async (req, res) => {
 // 🔥 EMAIL FUNCTION
 async function sendEmail(subject, message) {
   try {
-    let transporter = nodemailer.createTransport({
-      service: "gmail",
-      auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS
-      }
+    const res = await fetch("https://api.resend.com/emails", {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${process.env.RESEND_API_KEY}`,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        from: "onboarding@resend.dev",
+        to: process.env.EMAIL_USER,
+        subject: subject,
+        text: message
+      })
     });
 
-    let info = await transporter.sendMail({
-      from: `"Sistem Irigatii" <${process.env.EMAIL_USER}>`,
-      to: process.env.EMAIL_USER,
-      subject: subject,
-      text: message
-    });
-
-    console.log("📧 Email trimis:", info.response);
+    const data = await res.json();
+    console.log("📧 RESEND:", data);
 
   } catch (err) {
-    console.error("❌ EMAIL ERROR:", err.message);
+    console.error("❌ RESEND ERROR:", err.message);
   }
 }
-
-// ❌ AM SCOS EMAIL DE TEST (IMPORTANT)
 
 // 🔥 START SERVER
 app.listen(process.env.PORT || 10000, () => {
