@@ -48,7 +48,7 @@ initDB();
 
 // 🔥 TEST API
 app.get("/", (req, res) => {
-  res.send("API WORKING");
+  res.sendFile(path.join(__dirname, "public/login.html"));
 });
 
 // 🔥 FIX DB (opțional)
