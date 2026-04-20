@@ -63,10 +63,20 @@ app.get("/", (req, res) => {
 // 🔥 FIX DB (opțional)
 app.get("/fix-db", async (req, res) => {
   try {
-    await pool.query("ALTER TABLE sensor_data ADD COLUMN command INTEGER");
-    res.send("✅ command column added");
+    // Adăugăm rând pe rând toate coloanele posibile, fără să ne oprim dacă una există deja
+    await pool.query("ALTER TABLE sensor_data ADD COLUMN IF NOT EXISTS temperature FLOAT");
+    await pool.query("ALTER TABLE sensor_data ADD COLUMN IF NOT EXISTS humidity FLOAT");
+    await pool.query("ALTER TABLE sensor_data ADD COLUMN IF NOT EXISTS pressure FLOAT");
+    await pool.query("ALTER TABLE sensor_data ADD COLUMN IF NOT EXISTS illuminance FLOAT");
+    await pool.query("ALTER TABLE sensor_data ADD COLUMN IF NOT EXISTS co2 FLOAT");
+    await pool.query("ALTER TABLE sensor_data ADD COLUMN IF NOT EXISTS soil FLOAT");
+    await pool.query("ALTER TABLE sensor_data ADD COLUMN IF NOT EXISTS water_temp FLOAT");
+    await pool.query("ALTER TABLE sensor_data ADD COLUMN IF NOT EXISTS command INTEGER");
+    
+    res.send("✅ Baza de date a fost actualizată cu succes!");
   } catch (err) {
-    res.send("❌ " + err.message);
+    console.error(err);
+    res.status(500).send("❌ Eroare: " + err.message);
   }
 });
 
