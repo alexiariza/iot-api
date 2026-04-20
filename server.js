@@ -107,10 +107,11 @@ app.get("/data", async (req, res) => {
 
 // 🔥 INSERT DATA
 app.post("/insert", async (req, res) => {
+  let client;
+
   try {
     let { temperature, humidity, pressure, illuminance, co2, soil, water_temp } = req.body;
 
-    // 🔥 IMPORTANT: normalizare valori
     temperature = temperature ?? null;
     humidity = humidity ?? null;
     pressure = pressure ?? null;
@@ -119,11 +120,22 @@ app.post("/insert", async (req, res) => {
     soil = soil ?? null;
     water_temp = water_temp ?? null;
 
-    console.log("📥 INSERT:", {
-      temperature, humidity, pressure, illuminance, co2, soil, water_temp
-    });
+    console.log("📥 INSERT:", { temperature, humidity, pressure, illuminance, co2, soil, water_temp });
 
-    await pool.query(
+    // 🔥 retry connect
+    for (let i = 0; i < 3; i++) {
+      try {
+        client = await pool.connect();
+        break;
+      } catch (err) {
+        console.log("🔁 Retry DB connect...");
+        await new Promise(r => setTimeout(r, 2000));
+      }
+    }
+
+    if (!client) throw new Error("DB connect failed");
+
+    await client.query(
       `INSERT INTO sensor_data 
       (temperature, humidity, pressure, illuminance, co2, soil, water_temp) 
       VALUES ($1,$2,$3,$4,$5,$6,$7)`,
@@ -135,6 +147,9 @@ app.post("/insert", async (req, res) => {
   } catch (err) {
     console.error("❌ INSERT ERROR:", err.message);
     res.status(500).json({ error: "server error" });
+
+  } finally {
+    if (client) client.release();
   }
 });
 app.post("/login", (req, res) => {
