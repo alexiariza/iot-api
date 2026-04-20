@@ -29,22 +29,27 @@ const pool = new Pool({
 
 // 🔥 CREATE TABLE
 async function initDB() {
-  await pool.query(`
-    CREATE TABLE IF NOT EXISTS sensor_data (
-      id SERIAL PRIMARY KEY,
-      temperature FLOAT,
-      humidity FLOAT,
-      pressure FLOAT,
-      illuminance FLOAT,
-      co2 FLOAT,
-      soil FLOAT,
-      water_temp FLOAT,
-      command INTEGER,
-      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-    );
-  `);
+  try {
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS sensor_data (
+        id SERIAL PRIMARY KEY,
+        temperature FLOAT,
+        humidity FLOAT,
+        pressure FLOAT,
+        illuminance FLOAT,
+        co2 FLOAT,
+        soil FLOAT,
+        water_temp FLOAT,
+        command INTEGER,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+    `);
 
-  console.log("✅ TABLE READY");
+    console.log("✅ TABLE READY");
+
+  } catch (err) {
+    console.error("❌ DB ERROR:", err.message);
+  }
 }
 
 initDB();
