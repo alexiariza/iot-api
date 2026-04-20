@@ -101,11 +101,11 @@ app.get("/data", async (req, res) => {
 // 🔥 INSERT DATA
 app.post("/insert", async (req, res) => {
   try {
-    const { temperature, humidity, pressure, illuminance } = req.body;
-    await pool.query(
-      "INSERT INTO sensor_data (temperature, humidity, pressure, illuminance) VALUES ($1,$2,$3,$4)",
-      [temperature, humidity, pressure, illuminance]
-    );
+    const { temperature, humidity, pressure, illuminance, co2, soil, water_temp } = req.body;
+await pool.query(
+  "INSERT INTO sensor_data (temperature, humidity, pressure, illuminance, co2, soil, water_temp) VALUES ($1,$2,$3,$4,$5,$6,$7)",
+  [temperature, humidity, pressure, illuminance, co2, soil, water_temp]
+);
 
     res.json({ status: "ok" });
 
