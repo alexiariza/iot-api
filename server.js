@@ -23,7 +23,7 @@ app.use(express.static(path.join(__dirname, "public")));
 
 // 🔥 DB CONNECTION
 const pool = new Pool({
-  connectionString: "postgresql://iot_db_3whd_user:ql42HXPaY8poPqjoIrWz45yjdKSmITmJ@dpg-d6tvtqchg0os738338j0-a.oregon-postgres.render.com/iot_db_3whd",
+  connectionString: "postgresql://iot_db_3whd_user:ql42HXPaY8poPqjoIrWz45yjdKSmITmJ@dpg-d6tvtqchg0os738338j0-a/iot_db_3whd",
   ssl: { rejectUnauthorized: false },
 });
 
