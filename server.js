@@ -108,16 +108,32 @@ app.get("/data", async (req, res) => {
 // 🔥 INSERT DATA
 app.post("/insert", async (req, res) => {
   try {
-    const { temperature, humidity, pressure, illuminance, co2, soil, water_temp } = req.body;
-await pool.query(
-  "INSERT INTO sensor_data (temperature, humidity, pressure, illuminance, co2, soil, water_temp) VALUES ($1,$2,$3,$4,$5,$6,$7)",
-  [temperature, humidity, pressure, illuminance, co2, soil, water_temp]
-);
+    let { temperature, humidity, pressure, illuminance, co2, soil, water_temp } = req.body;
+
+    // 🔥 IMPORTANT: normalizare valori
+    temperature = temperature ?? null;
+    humidity = humidity ?? null;
+    pressure = pressure ?? null;
+    illuminance = illuminance ?? null;
+    co2 = co2 ?? null;
+    soil = soil ?? null;
+    water_temp = water_temp ?? null;
+
+    console.log("📥 INSERT:", {
+      temperature, humidity, pressure, illuminance, co2, soil, water_temp
+    });
+
+    await pool.query(
+      `INSERT INTO sensor_data 
+      (temperature, humidity, pressure, illuminance, co2, soil, water_temp) 
+      VALUES ($1,$2,$3,$4,$5,$6,$7)`,
+      [temperature, humidity, pressure, illuminance, co2, soil, water_temp]
+    );
 
     res.json({ status: "ok" });
 
   } catch (err) {
-    console.error(err);
+    console.error("❌ INSERT ERROR:", err.message);
     res.status(500).json({ error: "server error" });
   }
 });
