@@ -5,7 +5,7 @@
 <meta charset="UTF-8">
 <title>Sistem irigații inteligente</title>
 
-<link rel="stylesheet" href="css/style.css?v=3">
+<link rel="stylesheet" href="css/style.css?v=4">
 
 <style>
 .toast{
@@ -52,18 +52,21 @@ box-shadow:0 5px 15px rgba(0,0,0,0.3);
 <div class="system-card"><div class="system-state" id="hum_status">⚪ Fără date</div></div>
 <div class="system-card"><div class="system-state" id="press_status">⚪ Fără date</div></div>
 <div class="system-card"><div class="system-state" id="light_status">⚪ Fără date</div></div>
+<div class="system-card"><div class="system-state" id="soil_status">⚪ Fără date</div></div>
+<div class="system-card"><div class="system-state" id="co2_status">⚪ Fără date</div></div>
 
 </div>
 
+<!-- 🔥 SENSORI -->
 <div class="sensor-cards">
 
 <div class="sensor-card">
-<div class="sensor-title">🌡 Temperatură</div>
+<div class="sensor-title">🌡 Temperatură aer</div>
 <div class="sensor-value" id="temp">-- °C</div>
 </div>
 
 <div class="sensor-card">
-<div class="sensor-title">💧 Umiditate</div>
+<div class="sensor-title">💧 Umiditate aer</div>
 <div class="sensor-value" id="hum">-- %</div>
 </div>
 
@@ -75,6 +78,21 @@ box-shadow:0 5px 15px rgba(0,0,0,0.3);
 <div class="sensor-card">
 <div class="sensor-title">☀ Lumină</div>
 <div class="sensor-value" id="light">-- lux</div>
+</div>
+
+<div class="sensor-card">
+<div class="sensor-title">🌱 Umiditate sol</div>
+<div class="sensor-value" id="soil">-- %</div>
+</div>
+
+<div class="sensor-card">
+<div class="sensor-title">💨 CO2</div>
+<div class="sensor-value" id="co2">-- ppm</div>
+</div>
+
+<div class="sensor-card">
+<div class="sensor-title">💧 Temperatură apă</div>
+<div class="sensor-value" id="water">-- °C</div>
 </div>
 
 </div>
@@ -107,16 +125,26 @@ async function loadData() {
     let h = Number(d.humidity) || 0;
     let p = Number(d.pressure) || 0;
     let l = Number(d.illuminance) || 0;
+    let co2 = Number(d.co2) || 0;
+    let soil = Number(d.soil) || 0;
+    let water = Number(d.water_temp) || 0;
 
+    // 🔥 AFIȘARE
     document.getElementById("temp").innerText = t + " °C";
     document.getElementById("hum").innerText = h + " %";
     document.getElementById("press").innerText = p + " hPa";
     document.getElementById("light").innerText = l + " lux";
+    document.getElementById("soil").innerText = soil + " %";
+    document.getElementById("co2").innerText = co2 + " ppm";
+    document.getElementById("water").innerText = water + " °C";
 
-    setStatus("temp_status", t > 35 ? "🔴 Temperatură mare" : "🟢 Temperatura normala");
-    setStatus("hum_status", h < 30 ? "🔴 Umiditate mică" : "🟢 Umiditate normala");
-    setStatus("press_status", p < 980 ? "🟡 Presiune scăzută" : "🟢 Presiune normala");
-    setStatus("light_status", l > 800 ? "🟡 Lumină mare" : "🟢 Lumina normala");
+    // 🔥 STATUS
+    setStatus("temp_status", t > 35 ? "🔴 Temperatură mare" : "🟢 Temperatură normală");
+    setStatus("hum_status", h < 30 ? "🔴 Umiditate mică" : "🟢 Umiditate normală");
+    setStatus("press_status", p < 980 ? "🟡 Presiune scăzută" : "🟢 Presiune normală");
+    setStatus("light_status", l > 800 ? "🟡 Lumină mare" : "🟢 Lumină normală");
+    setStatus("soil_status", soil < 30 ? "🔴 Sol uscat" : "🟢 Sol OK");
+    setStatus("co2_status", co2 > 1000 ? "🟡 CO2 mare" : "🟢 CO2 normal");
 
   } catch(err){
     console.error(err);
@@ -127,22 +155,19 @@ function setStatus(id,text){
   document.getElementById(id).innerText = text;
 }
 
-// 🔥 BUTOANE FUNCȚIONALE
+// 🔥 CONTROL IRIGAȚIE
 async function controlIrigation(action){
   try{
 
     let cmd = action === "on" ? 1 : 0;
 
-    const res = await fetch("https://iot-api-1-5qfd.onrender.com/command", {
+    await fetch("https://iot-api-1-5qfd.onrender.com/command", {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
       },
       body: JSON.stringify({ command: cmd })
     });
-
-    const text = await res.text();
-    console.log("Server:", text);
 
     const status = document.getElementById("irrigation-status");
 
@@ -157,6 +182,7 @@ async function controlIrigation(action){
   }
 }
 
+// 🔥 AUTO REFRESH
 loadData();
 setInterval(loadData, 5000);
 
