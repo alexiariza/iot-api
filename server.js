@@ -81,22 +81,19 @@ app.get("/fix-db", async (req, res) => {
 });
 
 // 🔥 COMMAND
-app.post("/command", async (req, res) => {
+app.post("/insert", async (req, res) => {
   try {
-    const { command } = req.body;
 
-    console.log("🔥 COMMAND RECEIVED:", command);
-
-    await pool.query(
-      "INSERT INTO sensor_data (command) VALUES ($1)",
-      [command]
+    const result = await pool.query(
+      "SELECT command FROM sensor_data WHERE command IS NOT NULL ORDER BY id DESC LIMIT 1"
     );
+    const lastCommand = result.rows.length > 0 ? result.rows[0].command : 0;
 
-    res.json({ status: "command saved" }); // 🔥 FIX JSON
+    res.status(200).send(lastCommand.toString());
 
+    console.log(`✅ Comandă trimisă către Arduino: ${lastCommand}`);
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: "server error" });
+    res.status(500).send("0");
   }
 });
 
