@@ -66,87 +66,74 @@
     </div>
 
     <script>
-        // Configurație de bază pentru a nu repeta codul
-        const chartOptions = {
-            type: 'line',
-            data: { labels: [], datasets: [{ label: '', data: [], borderColor: '', tension: 0.3 }] },
-            options: { responsive: true, scales: { y: { beginAtZero: false } } }
-        };
+    // Configurație de bază
+    const chartOptionsBase = {
+        type: 'line',
+        data: { labels: [], datasets: [{ label: '', data: [], borderColor: '', tension: 0.3 }] },
+        options: { responsive: true, scales: { y: { beginAtZero: false } } }
+    };
 
-        const tempChart = new Chart(document.getElementById("tempChart"), { ...chartOptions });
-        tempChart.data.datasets[0].label = 'Temp Aer';
-        tempChart.data.datasets[0].borderColor = 'red';
+    // Funcție pentru a crea o copie curată a configurației (fără a le amesteca)
+    function createConfig(label, color) {
+        let newConfig = JSON.parse(JSON.stringify(chartOptionsBase));
+        newConfig.data.datasets[0].label = label;
+        newConfig.data.datasets[0].borderColor = color;
+        return newConfig;
+    }
 
-        const humChart = new Chart(document.getElementById("humChart"), { ...chartOptions });
-        humChart.data.datasets[0].label = 'Umiditate';
-        humChart.data.datasets[0].borderColor = 'blue';
+    // Inițializare grafice cu configurații INDEPENDENTE
+    const tempChart = new Chart(document.getElementById("tempChart"), createConfig('Temp Aer', 'red'));
+    const humChart = new Chart(document.getElementById("humChart"), createConfig('Umiditate', 'blue'));
+    const pressChart = new Chart(document.getElementById("pressChart"), createConfig('Presiune', 'green'));
+    const lightChart = new Chart(document.getElementById("lightChart"), createConfig('Lumină', 'orange'));
+    const soilChart = new Chart(document.getElementById("soilChart"), createConfig('Umiditate Sol', 'brown'));
+    const co2Chart = new Chart(document.getElementById("co2Chart"), createConfig('CO2', 'gray'));
+    const waterTempChart = new Chart(document.getElementById("waterTempChart"), createConfig('Temp Apă', 'cyan'));
 
-        const pressChart = new Chart(document.getElementById("pressChart"), { ...chartOptions });
-        pressChart.data.datasets[0].label = 'Presiune';
-        pressChart.data.datasets[0].borderColor = 'green';
+    async function loadChart() {
+        try {
+            // Verifică dacă URL-ul API-ului este cel corect (cel din server.js)
+            const res = await fetch("https://iot-api-1-5qfd.onrender.com/data");
+            const data = await res.json();
 
-        const lightChart = new Chart(document.getElementById("lightChart"), { ...chartOptions });
-        lightChart.data.datasets[0].label = 'Lumină';
-        lightChart.data.datasets[0].borderColor = 'orange';
+            const clean = data.slice(0, 30).reverse();
 
-        // Inițializare grafice noi
-        const soilChart = new Chart(document.getElementById("soilChart"), { ...chartOptions });
-        soilChart.data.datasets[0].label = 'Umiditate Sol';
-        soilChart.data.datasets[0].borderColor = 'brown';
+            let labels = [], temps = [], hums = [], press = [], light = [], soil = [], co2 = [], water = [];
 
-        const co2Chart = new Chart(document.getElementById("co2Chart"), { ...chartOptions });
-        co2Chart.data.datasets[0].label = 'CO2';
-        co2Chart.data.datasets[0].borderColor = 'gray';
+            clean.forEach(row => {
+                labels.push(new Date(row.created_at).toLocaleTimeString());
+                
+                temps.push(row.temperature);
+                hums.push(row.humidity);
+                press.push(row.pressure);
+                light.push(row.illuminance);
+                soil.push(row.soil);
+                co2.push(row.co2);
+                water.push(row.water_temp);
+            });
 
-        const waterTempChart = new Chart(document.getElementById("waterTempChart"), { ...chartOptions });
-        waterTempChart.data.datasets[0].label = 'Temp Apă';
-        waterTempChart.data.datasets[0].borderColor = 'cyan';
+            // Update date pentru fiecare grafic în parte
+            tempChart.data.labels = labels; tempChart.data.datasets[0].data = temps;
+            humChart.data.labels = labels; humChart.data.datasets[0].data = hums;
+            pressChart.data.labels = labels; pressChart.data.datasets[0].data = press;
+            lightChart.data.labels = labels; lightChart.data.datasets[0].data = light;
+            soilChart.data.labels = labels; soilChart.data.datasets[0].data = soil;
+            co2Chart.data.labels = labels; co2Chart.data.datasets[0].data = co2;
+            waterTempChart.data.labels = labels; waterTempChart.data.datasets[0].data = water;
 
-        async function loadChart() {
-            try {
-                const res = await fetch("https://iot-api-1-5qfd.onrender.com/data");
-                const data = await res.json();
+            // Refresh vizual
+            tempChart.update(); humChart.update(); pressChart.update();
+            lightChart.update(); soilChart.update(); co2Chart.update();
+            waterTempChart.update();
 
-                // FILTRARE: Am scos condițiile stricte. 
-                // Acum luăm ultimele 30 de intrări indiferent dacă au unele valori null.
-                const clean = data.slice(0, 30).reverse();
-
-                let labels = [], temps = [], hums = [], press = [], light = [], soil = [], co2 = [], water = [];
-
-                clean.forEach(row => {
-                    labels.push(new Date(row.created_at).toLocaleTimeString());
-                    
-                    temps.push(row.temperature);
-                    hums.push(row.humidity);
-                    press.push(row.pressure);
-                    light.push(row.illuminance);
-                    soil.push(row.soil);
-                    co2.push(row.co2);
-                    water.push(row.water_temp);
-                });
-
-                // Update date
-                tempChart.data.labels = labels; tempChart.data.datasets[0].data = temps;
-                humChart.data.labels = labels; humChart.data.datasets[0].data = hums;
-                pressChart.data.labels = labels; pressChart.data.datasets[0].data = press;
-                lightChart.data.labels = labels; lightChart.data.datasets[0].data = light;
-                soilChart.data.labels = labels; soilChart.data.datasets[0].data = soil;
-                co2Chart.data.labels = labels; co2Chart.data.datasets[0].data = co2;
-                waterTempChart.data.labels = labels; waterTempChart.data.datasets[0].data = water;
-
-                // Update vizual
-                tempChart.update(); humChart.update(); pressChart.update();
-                lightChart.update(); soilChart.update(); co2Chart.update();
-                waterTempChart.update();
-
-            } catch (e) {
-                console.error("Eroare grafice:", e);
-            }
+        } catch (e) {
+            console.error("Eroare grafice:", e);
         }
+    }
 
-        loadChart();
-        setInterval(loadChart, 10000); // Actualizare la 10 secunde pentru a nu suprasolicita API-ul
-    </script>
+    loadChart();
+    setInterval(loadChart, 10000);
+</script>
 
 </body>
 </html>
