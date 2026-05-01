@@ -84,19 +84,43 @@ app.get("/fix-db", async (req, res) => {
 app.post("/command", async (req, res) => {
   try {
     const { command } = req.body;
+    console.log("🔥 COMANDĂ RECEPȚIONATĂ:", command);
 
-    console.log("🔥 COMMAND RECEIVED:", command);
+    // Salvare în baza de date
+    await pool.query("INSERT INTO sensor_data (command) VALUES ($1)", [command]);
 
-    await pool.query(
-      "INSERT INTO sensor_data (command) VALUES ($1)",
-      [command]
-    );
+    // Trimitere către ChirpStack
+    const dev_eui = "a8610a33354b7d09"; // DevEUI-ul tău din imaginea anterioară
+    // DACĂ EȘTI PE INTERNET, aici trebuie să pui IP-ul tău public sau adresa Ngrok
+    const url = `http://192.168.0.152:8080/api/devices/${dev_eui}/queue`;
+    const api_key = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhcGlfa2V5X2lkIjoiMDhhMTljMjctMmY3ZC00YTRjLWEwMDYtZGI3MjU1MTZjOThjIiwiYXVkIjoiYXMiLCJpc3MiOiJhcyIsIm5iZiI6MTc3NzY0NDE3Mywic3ViIjoiYXBpX2tleSJ9.J-T4Kf-oTMn3Pi1-JJl2NzRxrs_yLII-d6WhL3zDX0U"; 
 
-    res.json({ status: "command saved" }); // 🔥 FIX JSON
+    const response = await fetch(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Grpc-Metadata-Authorization": `Bearer ${api_key}`
+      },
+      body: JSON.stringify({
+        "deviceQueueItem": {
+          "confirmed": false,
+          "data": (command === 1) ? "AQ==" : "AA==",
+          "fPort": 1
+        }
+      })
+    });
 
+    if (response.ok) {
+      console.log("✅ Trimis la ChirpStack!");
+      res.json({ status: "success" });
+    } else {
+      const err = await response.text();
+      console.error("❌ Eroare ChirpStack:", err);
+      res.status(500).json({ error: "ChirpStack error" });
+    }
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: "server error" });
+    res.status(500).send("Server Error");
   }
 });
 
