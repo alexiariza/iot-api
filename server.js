@@ -81,10 +81,10 @@ app.get("/fix-db", async (req, res) => {
 });
 
 // 🔥 COMMAND
-// 🔥 RUTA TA INITIALA (BACKEND)
 app.post("/command", async (req, res) => {
   try {
     const { command } = req.body;
+
     console.log("🔥 COMMAND RECEIVED:", command);
 
     await pool.query(
@@ -92,24 +92,11 @@ app.post("/command", async (req, res) => {
       [command]
     );
 
-    res.json({ status: "command saved" }); 
+    res.json({ status: "command saved" }); // 🔥 FIX JSON
 
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: "server error" });
-  }
-});
-    if (response.ok) {
-      console.log("✅ Trimis la ChirpStack!");
-      res.json({ status: "success" });
-    } else {
-      const err = await response.text();
-      console.error("❌ Eroare ChirpStack:", err);
-      res.status(500).json({ error: "ChirpStack error" });
-    }
-  } catch (err) {
-    console.error(err);
-    res.status(500).send("Server Error");
   }
 });
 
