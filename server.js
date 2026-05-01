@@ -118,46 +118,38 @@ app.get("/data", async (req, res) => {
 // 🔥 INSERT DATA
 app.post("/insert", async (req, res) => {
   let client;
-
   try {
     let { temperature, humidity, pressure, illuminance, co2, soil, water_temp } = req.body;
 
-    temperature = temperature ?? null;
-    humidity = humidity ?? null;
-    pressure = pressure ?? null;
-    illuminance = illuminance ?? null;
-    co2 = co2 ?? null;
-    soil = soil ?? null;
-    water_temp = water_temp ?? null;
-
-    console.log("📥 INSERT:", { temperature, humidity, pressure, illuminance, co2, soil, water_temp });
-
-    // 🔥 retry connect
-    for (let i = 0; i < 3; i++) {
-      try {
-        client = await pool.connect();
-        break;
-      } catch (err) {
-        console.log("🔁 Retry DB connect...");
-        await new Promise(r => setTimeout(r, 2000));
-      }
-    }
-
-    if (!client) throw new Error("DB connect failed");
-
+    // 1. Salvăm datele senzorilor (dacă există)
+    client = await pool.connect();
     await client.query(
       `INSERT INTO sensor_data 
       (temperature, humidity, pressure, illuminance, co2, soil, water_temp) 
       VALUES ($1,$2,$3,$4,$5,$6,$7)`,
-      [temperature, humidity, pressure, illuminance, co2, soil, water_temp]
+      [temperature ?? null, humidity ?? null, pressure ?? null, illuminance ?? null, co2 ?? null, soil ?? null, water_temp ?? null]
     );
 
-    res.json({ status: "ok" });
+    // 2. 🔥 PARTEA NOUĂ: Căutăm ultima comandă dată de tine pe site
+    const commandResult = await client.query(
+      "SELECT command FROM sensor_data WHERE command IS NOT NULL ORDER BY id DESC LIMIT 1"
+    );
+    
+    const lastCommand = commandResult.rows.length > 0 ? commandResult.rows[0].command : 0;
+
+    // 3. Trimitem comanda înapoi la ChirpStack ca răspuns (Downlink)
+    // ChirpStack va lua acest JSON și îl va trimite la Arduino
+    res.json({ 
+      confirmed: false, 
+      fPort: 1, 
+      data: (lastCommand === 1 ? "AQ==" : "AA==") // AQ== este 1, AA== este 0
+    });
+
+    console.log(`✅ Date salvate. Trimis downlink la Arduino: ${lastCommand}`);
 
   } catch (err) {
     console.error("❌ INSERT ERROR:", err.message);
     res.status(500).json({ error: "server error" });
-
   } finally {
     if (client) client.release();
   }
