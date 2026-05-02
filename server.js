@@ -122,15 +122,7 @@ app.post("/insert", async (req, res) => {
   try {
     let { temperature, humidity, pressure, illuminance, co2, soil, water_temp } = req.body;
 
-    temperature = temperature ?? null;
-    humidity = humidity ?? null;
-    pressure = pressure ?? null;
-    illuminance = illuminance ?? null;
-    co2 = co2 ?? null;
-    soil = soil ?? null;
-    water_temp = water_temp ?? null;
-
-    console.log("📥 INSERT:", { temperature, humidity, pressure, illuminance, co2, soil, water_temp });
+    console.log("📥 RAW:", req.body);
 
     // 🔥 retry connect
     for (let i = 0; i < 3; i++) {
@@ -145,11 +137,29 @@ app.post("/insert", async (req, res) => {
 
     if (!client) throw new Error("DB connect failed");
 
+    // 🔥 LUĂM ULTIMA VALOARE DIN DB
+    const last = await client.query(
+      "SELECT * FROM sensor_data ORDER BY id DESC LIMIT 1"
+    );
+
+    const prev = last.rows[0] || {};
+
+    // 🔥 păstrăm ultima valoare dacă vine null
+    const t = temperature ?? prev.temperature ?? null;
+    const h = humidity ?? prev.humidity ?? null;
+    const p = pressure ?? prev.pressure ?? null;
+    const l = illuminance ?? prev.illuminance ?? null;
+    const c = co2 ?? prev.co2 ?? null;
+    const s = soil ?? prev.soil ?? null;
+    const w = water_temp ?? prev.water_temp ?? null;
+
+    console.log("✅ FINAL INSERT:", { t, h, p, l, c, s, w });
+
     await client.query(
       `INSERT INTO sensor_data 
       (temperature, humidity, pressure, illuminance, co2, soil, water_temp) 
       VALUES ($1,$2,$3,$4,$5,$6,$7)`,
-      [temperature, humidity, pressure, illuminance, co2, soil, water_temp]
+      [t, h, p, l, c, s, w]
     );
 
     res.json({ status: "ok" });
