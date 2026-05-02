@@ -81,48 +81,23 @@ app.get("/fix-db", async (req, res) => {
 });
 
 // 🔥 COMMAND
-app.post("/insert", async (req, res) => {
-    // Log pentru depanare - vei vedea exact ce trimite Python în consola Render
-    console.log("Date primite:", req.body);
+app.post("/command", async (req, res) => {
+  try {
+    const { command } = req.body;
 
-    try {
-        // 1. Extragere date (Acceptăm ambele variante de nume pentru siguranță)
-        const temperature = req.body.temperature || req.body.t;
-        const humidity = req.body.humidity || req.body.h;
-        const pressure = req.body.pressure || req.body.p;
-        const light = req.body.illuminance || req.body.l;
-        const co2 = req.body.co2;
-        const water_temp = req.body.water_temp || req.body.tw;
-        const soil = req.body.soil;
+    console.log("🔥 COMMAND RECEIVED:", command);
 
-        // 2. Salvare în baza de date
-        const queryText = `
-            INSERT INTO sensor_data 
-            (temperature, humidity, pressure, light, co2, water_temp, soil_moisture) 
-            VALUES ($1, $2, $3, $4, $5, $6, $7)
-        `;
-        await pool.query(queryText, [temperature, humidity, pressure, light, co2, water_temp, soil]);
+    await pool.query(
+      "INSERT INTO sensor_data (command) VALUES ($1)",
+      [command]
+    );
 
-        // 3. Citire comandă actuator (Ce am adăugat anterior)
-        // Căutăm ultima comandă manuală dată de tine din interfață
-        const result = await pool.query(
-            "SELECT command FROM sensor_data WHERE command IS NOT NULL ORDER BY id DESC LIMIT 1"
-        );
-        
-        // Dacă nu există nicio comandă în DB, trimitem "0" (OFF) implicit
-        const commandToSend = result.rows.length > 0 ? result.rows[0].command : 0;
+    res.json({ status: "command saved" }); // 🔥 FIX JSON
 
-        // 4. Răspunsul către Python (care ajunge la ChirpStack -> Arduino)
-        // Trimitem DOAR cifra, ca text, pentru a fi ușor de citit de Codec
-        res.status(200).send(commandToSend.toString());
-
-        console.log(`Date salvate. Comandă trimisă înapoi: ${commandToSend}`);
-
-    } catch (err) {
-        console.error("Eroare la procesare /insert:", err.message);
-        // Trimitem un cod de eroare, dar și o valoare neutră pentru actuator
-        res.status(500).send("0"); 
-    }
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "server error" });
+  }
 });
 
 // 🔥 GET DATA
@@ -143,42 +118,51 @@ app.get("/data", async (req, res) => {
 // 🔥 INSERT DATA
 app.post("/insert", async (req, res) => {
   let client;
+
   try {
     let { temperature, humidity, pressure, illuminance, co2, soil, water_temp } = req.body;
 
-    // 1. Salvăm datele senzorilor (dacă există)
-    client = await pool.connect();
+    temperature = temperature ?? null;
+    humidity = humidity ?? null;
+    pressure = pressure ?? null;
+    illuminance = illuminance ?? null;
+    co2 = co2 ?? null;
+    soil = soil ?? null;
+    water_temp = water_temp ?? null;
+
+    console.log("📥 INSERT:", { temperature, humidity, pressure, illuminance, co2, soil, water_temp });
+
+    // 🔥 retry connect
+    for (let i = 0; i < 3; i++) {
+      try {
+        client = await pool.connect();
+        break;
+      } catch (err) {
+        console.log("🔁 Retry DB connect...");
+        await new Promise(r => setTimeout(r, 2000));
+      }
+    }
+
+    if (!client) throw new Error("DB connect failed");
+
     await client.query(
       `INSERT INTO sensor_data 
       (temperature, humidity, pressure, illuminance, co2, soil, water_temp) 
       VALUES ($1,$2,$3,$4,$5,$6,$7)`,
-      [temperature ?? null, humidity ?? null, pressure ?? null, illuminance ?? null, co2 ?? null, soil ?? null, water_temp ?? null]
+      [temperature, humidity, pressure, illuminance, co2, soil, water_temp]
     );
 
-    // 2. 🔥 PARTEA NOUĂ: Căutăm ultima comandă dată de tine pe site
-    const commandResult = await client.query(
-      "SELECT command FROM sensor_data WHERE command IS NOT NULL ORDER BY id DESC LIMIT 1"
-    );
-    
-    const lastCommand = commandResult.rows.length > 0 ? commandResult.rows[0].command : 0;
-
-    // 3. Trimitem comanda înapoi la ChirpStack ca răspuns (Downlink)
-    // ChirpStack va lua acest JSON și îl va trimite la Arduino
-    res.json({ 
-      confirmed: false, 
-      fPort: 1, 
-      data: (lastCommand === 1 ? "AQ==" : "AA==") // AQ== este 1, AA== este 0
-    });
-
-    console.log(`✅ Date salvate. Trimis downlink la Arduino: ${lastCommand}`);
+    res.json({ status: "ok" });
 
   } catch (err) {
     console.error("❌ INSERT ERROR:", err.message);
     res.status(500).json({ error: "server error" });
+
   } finally {
     if (client) client.release();
   }
 });
+
 app.post("/login", (req, res) => {
   const { username, password } = req.body;
 
