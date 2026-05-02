@@ -82,20 +82,38 @@ app.get("/fix-db", async (req, res) => {
 
 // 🔥 COMMAND
 app.post("/insert", async (req, res) => {
-  try {
+    console.log("Date primite de la Python:", req.body);
+    
+    try {
+        // Luăm datele indiferent dacă Python trimite nume lungi sau scurte
+        const t = req.body.temperature || req.body.t;
+        const h = req.body.humidity || req.body.h;
+        const p = req.body.pressure || req.body.p;
+        const l = req.body.illuminance || req.body.l;
+        const co2 = req.body.co2;
+        const tw = req.body.water_temp || req.body.tw;
+        const soil = req.body.soil;
 
-    const result = await pool.query(
-      "SELECT command FROM sensor_data WHERE command IS NOT NULL ORDER BY id DESC LIMIT 1"
-    );
-    const lastCommand = result.rows.length > 0 ? result.rows[0].command : 0;
+        // Inserare în baza de date
+        const query = `
+            INSERT INTO sensor_data 
+            (temperature, humidity, pressure, light, co2, water_temp, soil_moisture) 
+            VALUES ($1, $2, $3, $4, $5, $6, $7)
+        `;
+        await pool.query(query, [t, h, p, l, co2, tw, soil]);
 
-    res.status(200).send(lastCommand.toString());
+        // Căutăm ultima comandă pentru actuator
+        const cmdResult = await pool.query("SELECT command FROM sensor_data WHERE command IS NOT NULL ORDER BY id DESC LIMIT 1");
+        const lastCommand = cmdResult.rows.length > 0 ? cmdResult.rows[0].command : 0;
 
-    console.log(`✅ Comandă trimisă către Arduino: ${lastCommand}`);
-  } catch (err) {
-    res.status(500).send("0");
-  }
-});
+        console.log("Salvare reușită. Trimit comandă înapoi:", lastCommand);
+        res.status(200).send(lastCommand.toString());
+
+    } catch (err) {
+        console.error("EROARE LA INSERT:", err.message);
+        res.status(500).send("Eroare interna");
+    }
+});;
 
 // 🔥 GET DATA
 app.get("/data", async (req, res) => {
