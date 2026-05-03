@@ -5,29 +5,30 @@ import path from "path";
 import { fileURLToPath } from "url";
 import dotenv from "dotenv";
 
-
 dotenv.config();
 
 const { Pool } = pkg;
-
 const app = express();
 
 app.use(cors());
 app.use(express.json());
 
-// 🔥 FIX PUBLIC FOLDER
+// ================= PUBLIC =================
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-
 app.use(express.static(path.join(__dirname, "public")));
 
-// 🔥 DB CONNECTION
+// ================= CONTROL GLOBAL =================
+let manual_control = false; // 🔥 AUTO implicit
+let manual_state = 0;       // 🔥 0 = OFF
+
+// ================= DB =================
 const pool = new Pool({
   connectionString: "postgresql://iot_db_3whd_user:ql42HXPaY8poPqjoIrWz45yjdKSmITmJ@dpg-d6tvtqchg0os738338j0-a/iot_db_3whd",
   ssl: { rejectUnauthorized: false },
 });
 
-// 🔥 CREATE TABLE
+// ================= INIT DB =================
 async function initDB() {
   try {
     await pool.query(`
@@ -54,45 +55,30 @@ async function initDB() {
 
 initDB();
 
-
-// 🔥 TEST API
+// ================= ROOT =================
 app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "public/login.html"));
 });
 
-// 🔥 FIX DB (opțional)
-app.get("/fix-db", async (req, res) => {
-  try {
-    // Adăugăm rând pe rând toate coloanele posibile, fără să ne oprim dacă una există deja
-    await pool.query("ALTER TABLE sensor_data ADD COLUMN IF NOT EXISTS temperature FLOAT");
-    await pool.query("ALTER TABLE sensor_data ADD COLUMN IF NOT EXISTS humidity FLOAT");
-    await pool.query("ALTER TABLE sensor_data ADD COLUMN IF NOT EXISTS pressure FLOAT");
-    await pool.query("ALTER TABLE sensor_data ADD COLUMN IF NOT EXISTS illuminance FLOAT");
-    await pool.query("ALTER TABLE sensor_data ADD COLUMN IF NOT EXISTS co2 FLOAT");
-    await pool.query("ALTER TABLE sensor_data ADD COLUMN IF NOT EXISTS soil FLOAT");
-    await pool.query("ALTER TABLE sensor_data ADD COLUMN IF NOT EXISTS water_temp FLOAT");
-    await pool.query("ALTER TABLE sensor_data ADD COLUMN IF NOT EXISTS command INTEGER");
-    
-    res.send("✅ Baza de date a fost actualizată cu succes!");
-  } catch (err) {
-    console.error(err);
-    res.status(500).send("❌ Eroare: " + err.message);
-  }
+// ================= GET CONTROL =================
+app.get("/get_control", (req, res) => {
+  res.json({
+    manual_control,
+    state: manual_state
+  });
 });
 
-// 🔥 COMMAND
+// ================= SET MANUAL =================
 app.post("/command", async (req, res) => {
   try {
     const { command } = req.body;
 
     console.log("🔥 COMMAND RECEIVED:", command);
 
-    await pool.query(
-      "INSERT INTO sensor_data (command) VALUES ($1)",
-      [command]
-    );
+    manual_control = true;       // 🔥 activăm manual
+    manual_state = command;      // 🔥 salvăm comanda
 
-    res.json({ status: "command saved" }); // 🔥 FIX JSON
+    res.json({ status: "manual mode ON" });
 
   } catch (err) {
     console.error(err);
@@ -100,7 +86,14 @@ app.post("/command", async (req, res) => {
   }
 });
 
-// 🔥 GET DATA
+// ================= SET AUTO =================
+app.post("/auto", (req, res) => {
+  manual_control = false;
+  console.log("🤖 AUTO MODE ACTIVAT");
+  res.json({ status: "auto mode ON" });
+});
+
+// ================= GET DATA =================
 app.get("/data", async (req, res) => {
   try {
     const result = await pool.query(
@@ -115,7 +108,7 @@ app.get("/data", async (req, res) => {
   }
 });
 
-// 🔥 INSERT DATA
+// ================= INSERT =================
 app.post("/insert", async (req, res) => {
   let client;
 
@@ -124,7 +117,7 @@ app.post("/insert", async (req, res) => {
 
     console.log("📥 RAW:", req.body);
 
-    // 🔥 retry connect
+    // retry connect
     for (let i = 0; i < 3; i++) {
       try {
         client = await pool.connect();
@@ -137,14 +130,12 @@ app.post("/insert", async (req, res) => {
 
     if (!client) throw new Error("DB connect failed");
 
-    // 🔥 LUĂM ULTIMA VALOARE DIN DB
     const last = await client.query(
       "SELECT * FROM sensor_data ORDER BY id DESC LIMIT 1"
     );
 
     const prev = last.rows[0] || {};
 
-    // 🔥 păstrăm ultima valoare dacă vine null
     const t = temperature ?? prev.temperature ?? null;
     const h = humidity ?? prev.humidity ?? null;
     const p = pressure ?? prev.pressure ?? null;
@@ -173,6 +164,7 @@ app.post("/insert", async (req, res) => {
   }
 });
 
+// ================= LOGIN =================
 app.post("/login", (req, res) => {
   const { username, password } = req.body;
 
@@ -183,8 +175,7 @@ app.post("/login", (req, res) => {
   res.json({ success: false });
 });
 
-
-// 🔥 START SERVER
+// ================= START =================
 app.listen(process.env.PORT || 10000, () => {
   console.log("🚀 Server running");
 });
