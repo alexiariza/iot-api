@@ -135,22 +135,37 @@
             document.getElementById("soil").innerText = formatSensorValue(d.soil, "%");
             document.getElementById("co2").innerText = formatSensorValue(d.co2, "ppm");
             document.getElementById("water").innerText = formatSensorValue(d.water_temp, "°C");
-
-            // LOGICĂ STATUS (PASTILE)
-            updateStatusBadge("temp_status", d.temperature, 35, "Temp. MARE", "Temp. OK");
-            updateStatusBadge("hum_status", d.humidity, 30, "Aer USCAT", "Umiditate OK", true);
-            updateStatusBadge("soil_status", d.soil, 30, "Sol USCAT", "Sol OK", true);
-            updateStatusBadge("press_status", d.pressure, 980, "Presiune MICĂ", "Presiune OK", true);
-            updateStatusBadge("light_status", d.illuminance, 800, "Lumină MULTĂ", "Lumină OK");
             
-            // CO2 Status special
-            const co2Stat = document.getElementById("co2_status");
-            if(d.co2 > 1000) { co2Stat.innerText = "🔴 CO2 Ridicat"; co2Stat.style.background = "#f8d7da"; }
-            else if(d.co2 > 0) { co2Stat.innerText = "🟢 CO2 Normal"; co2Stat.style.background = "#d4edda"; }
-            else { co2Stat.innerText = "⚪ SCD4x Offline"; co2Stat.style.background = "#eee"; }
+            updateStatusSameAsPython(d);}
 
-        } catch(err) { console.error(err); }
+catch(err) { console.error(err); }
     }
+ function updateStatusSameAsPython(d) {
+
+    setStatus("temp_status", d.temperature !== null && d.temperature > 28, "Temp. MARE", "Temp. OK");
+
+    setStatus("hum_status", d.humidity !== null && d.humidity < 40, "Aer USCAT", "Umiditate OK");
+
+    setStatus("press_status", d.pressure !== null && d.pressure < 1000, "Presiune MICĂ", "Presiune OK");
+
+    setStatus("light_status", d.illuminance !== null && d.illuminance < 50, "Lumină MICĂ", "Lumină OK");
+
+    setStatus("co2_status", d.co2 !== null && d.co2 > 1000, "CO2 RIDICAT", "CO2 OK");
+
+    setStatus("soil_status", d.soil !== null && d.soil < 35, "Sol USCAT", "Sol OK");
+}
+
+function setStatus(id, isProblem, warnText, okText) {
+    const el = document.getElementById(id);
+
+    if (isProblem) {
+        el.innerText = "🔴 " + warnText;
+        el.style.background = "#f8d7da";
+    } else {
+        el.innerText = "🟢 " + okText;
+        el.style.background = "#d4edda";
+    }
+}
 
     function updateStatusBadge(id, val, limit, warnText, okText, reverse = false) {
         const el = document.getElementById(id);
