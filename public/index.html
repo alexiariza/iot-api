@@ -35,34 +35,82 @@
         </div>
 
         <div class="sensor-grid-modern">
-            <div class="card-modern"><span id="temp">-- °C</span></div>
-            <div class="card-modern"><span id="hum">-- %</span></div>
-            <div class="card-modern"><span id="press">-- hPa</span></div>
-            <div class="card-modern"><span id="light">-- lux</span></div>
-            <div class="card-modern"><span id="soil">-- %</span></div>
-            <div class="card-modern"><span id="co2">-- ppm</span></div>
-            <div class="card-modern"><span id="water">-- °C</span></div>
+            <div class="card-modern temp">
+                <div class="icon">🌡️</div>
+                <div class="info">
+                    <span class="label">Temperatură Aer</span>
+                    <span class="value" id="temp">-- °C</span>
+                </div>
+            </div>
+
+            <div class="card-modern hum">
+                <div class="icon">💧</div>
+                <div class="info">
+                    <span class="label">Umiditate Aer</span>
+                    <span class="value" id="hum">-- %</span>
+                </div>
+            </div>
+
+            <div class="card-modern press">
+                <div class="icon">⏲️</div>
+                <div class="info">
+                    <span class="label">Presiune</span>
+                    <span class="value" id="press">-- hPa</span>
+                </div>
+            </div>
+
+            <div class="card-modern light">
+                <div class="icon">☀️</div>
+                <div class="info">
+                    <span class="label">Lumină</span>
+                    <span class="value" id="light">-- lux</span>
+                </div>
+            </div>
+
+            <div class="card-modern soil">
+                <div class="icon">🌱</div>
+                <div class="info">
+                    <span class="label">Umiditate Sol</span>
+                    <span class="value" id="soil">-- %</span>
+                </div>
+            </div>
+
+            <div class="card-modern co2">
+                <div class="icon">☁️</div>
+                <div class="info">
+                    <span class="label">Nivel CO2</span>
+                    <span class="value" id="co2">-- ppm</span>
+                </div>
+            </div>
+
+            <div class="card-modern water">
+                <div class="icon">🧪</div>
+                <div class="info">
+                    <span class="label">Temp. Apă</span>
+                    <span class="value" id="water">-- °C</span>
+                </div>
+            </div>
         </div>
 
         <div class="control-panel">
-            <h3>Control Sistem</h3>
+            <h3>Control Sistem Irigație</h3>
 
             <div class="btn-group">
-                <button onclick="controlIrigation(1)">PORNEȘTE</button>
-                <button onclick="controlIrigation(0)">OPREȘTE</button>
-                <button onclick="setAuto()">AUTO</button>
+                <button class="btn btn-on" onclick="controlIrigation(1)">PORNEȘTE</button>
+                <button class="btn btn-off" onclick="controlIrigation(0)">OPREȘTE</button>
+                <button class="btn" style="background:#3498db;color:white;" onclick="setAuto()">AUTO</button>
             </div>
 
-            <div>
-                Stare: <span id="mode">AUTO</span>
+            <div id="irrigation-status" class="irrigation-indicator">
+                Stare actuală: <span class="status-text off">OPRITĂ</span>
             </div>
         </div>
     </main>
 </div>
 
 <script>
-function format(val, unit) {
-    if(val === null || val === undefined) return "-- " + unit;
+function formatSensorValue(val, unit, isPressure = false) {
+    if (val === null || val === undefined || (val === 0 && !isPressure)) return "-- " + unit;
     return val + " " + unit;
 }
 
@@ -70,61 +118,86 @@ async function loadData() {
     try {
         const res = await fetch("https://iot-api-1-5qfd.onrender.com/data");
         const data = await res.json();
-        if(!data.length) return;
+        if (!data.length) return;
 
         const d = data[0];
 
-        document.getElementById("temp").innerText = format(d.temperature,"°C");
-        document.getElementById("hum").innerText = format(d.humidity,"%");
-        document.getElementById("press").innerText = format(d.pressure,"hPa");
-        document.getElementById("light").innerText = format(d.illuminance,"lux");
-        document.getElementById("soil").innerText = format(d.soil,"%");
-        document.getElementById("co2").innerText = format(d.co2,"ppm");
-        document.getElementById("water").innerText = format(d.water_temp,"°C");
+        document.getElementById("temp").innerText = formatSensorValue(d.temperature, "°C");
+        document.getElementById("hum").innerText = formatSensorValue(d.humidity, "%");
+        document.getElementById("press").innerText = formatSensorValue(d.pressure, "hPa", true);
+        document.getElementById("light").innerText = formatSensorValue(d.illuminance, "lux");
+        document.getElementById("soil").innerText = formatSensorValue(d.soil, "%");
+        document.getElementById("co2").innerText = formatSensorValue(d.co2, "ppm");
+        document.getElementById("water").innerText = formatSensorValue(d.water_temp, "°C");
 
-        updateStatus(d);
+        updateStatusSameAsPython(d);
 
-    } catch(e) {
-        console.log(e);
+    } catch(err) { console.error(err); }
+}
+
+function updateStatusSameAsPython(d) {
+    setStatus("temp_status", d.temperature > 28, "Temp. MARE", "Temp. OK");
+    setStatus("hum_status", d.humidity < 40, "Aer USCAT", "Umiditate OK");
+    setStatus("press_status", d.pressure < 1000, "Presiune MICĂ", "Presiune OK");
+    setStatus("light_status", d.illuminance < 25, "Lumină MICĂ", "Lumină OK");
+    setStatus("co2_status", d.co2 > 1000, "CO2 RIDICAT", "CO2 OK");
+    setStatus("soil_status", d.soil < 35, "Sol USCAT", "Sol OK");
+}
+
+function setStatus(id, isProblem, warnText, okText) {
+    const el = document.getElementById(id);
+
+    if (isProblem) {
+        el.innerText = "🔴 " + warnText;
+        el.style.background = "#f8d7da";
+    } else {
+        el.innerText = "🟢 " + okText;
+        el.style.background = "#d4edda";
     }
 }
 
-function setStatus(id, ok) {
-    const el = document.getElementById(id);
-    el.innerText = ok ? "🟢 OK" : "🔴 PROBLEM";
-}
-
-function updateStatus(d) {
-    setStatus("temp_status", !(d.temperature > 28));
-    setStatus("hum_status", !(d.humidity < 40));
-    setStatus("press_status", !(d.pressure < 1000));
-    setStatus("light_status", !(d.illuminance < 25));
-    setStatus("soil_status", !(d.soil < 35));
-    setStatus("co2_status", !(d.co2 > 1000));
-}
-
-// 🔥 MANUAL CONTROL
+// 🔥 MANUAL
 async function controlIrigation(cmd) {
-    await fetch("https://iot-api-1-5qfd.onrender.com/command", {
-        method:"POST",
-        headers:{ "Content-Type":"application/json"},
-        body: JSON.stringify({command: cmd})
-    });
+    try {
+        await fetch("https://iot-api-1-5qfd.onrender.com/command", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ command: cmd })
+        });
 
-    document.getElementById("mode").innerText = "MANUAL";
+        const statusText = document.querySelector(".status-text");
+
+        if(cmd === 1) {
+            statusText.innerText = "PORNITĂ (MANUAL)";
+            statusText.className = "status-text on";
+        } else {
+            statusText.innerText = "OPRITĂ (MANUAL)";
+            statusText.className = "status-text off";
+        }
+
+    } catch(e) {
+        alert("Eroare la trimiterea comenzii!");
+    }
 }
 
-// 🔥 AUTO MODE
+// 🔥 AUTO
 async function setAuto() {
-    await fetch("https://iot-api-1-5qfd.onrender.com/auto", {
-        method:"POST"
-    });
+    try {
+        await fetch("https://iot-api-1-5qfd.onrender.com/auto", {
+            method: "POST"
+        });
 
-    document.getElementById("mode").innerText = "AUTO";
+        const statusText = document.querySelector(".status-text");
+        statusText.innerText = "AUTO";
+        statusText.className = "status-text";
+
+    } catch(e) {
+        alert("Eroare AUTO!");
+    }
 }
 
 loadData();
-setInterval(loadData,5000);
+setInterval(loadData, 5000);
 </script>
 
 </body>
