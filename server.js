@@ -20,7 +20,7 @@ app.use(express.static(path.join(__dirname, "public")));
 
 // ================= CONTROL GLOBAL =================
 let manual_control = false; // 🔥 AUTO implicit
-let manual_state = 0;       // 🔥 0 = OFF
+let manual_state = 0;       // 🔥 0 = OFF, 1 = ON
 
 // ================= DB =================
 const pool = new Pool({
@@ -63,22 +63,27 @@ app.get("/", (req, res) => {
 // ================= GET CONTROL =================
 app.get("/get_control", (req, res) => {
   res.json({
-    manual_control,
+    manual_control: manual_control,
     state: manual_state
   });
 });
 
 // ================= SET MANUAL =================
-app.post("/command", async (req, res) => {
+app.post("/command", (req, res) => {
   try {
     const { command } = req.body;
 
     console.log("🔥 COMMAND RECEIVED:", command);
 
-    manual_control = true;       // 🔥 activăm manual
-    manual_state = command;      // 🔥 salvăm comanda
+    manual_control = true;                 // 🔥 activăm manual
+    manual_state = command === 1 ? 1 : 0;  // 🔥 siguranță 0/1
 
-    res.json({ status: "manual mode ON" });
+    console.log("🎮 MANUAL MODE:", manual_state);
+
+    res.json({
+      status: "manual mode ON",
+      state: manual_state
+    });
 
   } catch (err) {
     console.error(err);
@@ -89,8 +94,13 @@ app.post("/command", async (req, res) => {
 // ================= SET AUTO =================
 app.post("/auto", (req, res) => {
   manual_control = false;
+  manual_state = 0;
+
   console.log("🤖 AUTO MODE ACTIVAT");
-  res.json({ status: "auto mode ON" });
+
+  res.json({
+    status: "auto mode ON"
+  });
 });
 
 // ================= GET DATA =================
