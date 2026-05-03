@@ -148,7 +148,7 @@ catch(err) { console.error(err); }
 
     setStatus("press_status", d.pressure !== null && d.pressure < 1000, "Presiune MICĂ", "Presiune OK");
 
-    setStatus("light_status", d.illuminance !== null && d.illuminance < 50, "Lumină MICĂ", "Lumină OK");
+    setStatus("light_status", d.illuminance !== null && d.illuminance < 25, "Lumină MICĂ", "Lumină OK");
 
     setStatus("co2_status", d.co2 !== null && d.co2 > 1000, "CO2 RIDICAT", "CO2 OK");
 
