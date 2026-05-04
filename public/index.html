@@ -137,16 +137,29 @@ async function loadData() {
 }
 
 function updateStatusSameAsPython(d) {
-    setStatus("temp_status", d.temperature > 28, "Temp. MARE", "Temp. OK");
-    setStatus("hum_status", d.humidity < 40, "Aer USCAT", "Umiditate OK");
-    setStatus("press_status", d.pressure < 1000, "Presiune MICĂ", "Presiune OK");
-    setStatus("light_status", d.illuminance < 25, "Lumină MICĂ", "Lumină OK");
-    setStatus("co2_status", d.co2 > 1000, "CO2 RIDICAT", "CO2 OK");
-    setStatus("soil_status", d.soil < 35, "Sol USCAT", "Sol OK");
+    setStatus("temp_status", d.temperature, 28, "Temp. MARE", "Temp. OK", false);
+    setStatus("hum_status", d.humidity, 40, "Aer USCAT", "Umiditate OK", true);
+    setStatus("press_status", d.pressure, 1000, "Presiune MICĂ", "Presiune OK", true);
+    setStatus("light_status", d.illuminance, 25, "Lumină MICĂ", "Lumină OK", true);
+    setStatus("co2_status", d.co2, 1000, "CO2 RIDICAT", "CO2 OK", false);
+    setStatus("soil_status", d.soil, 35, "Sol USCAT", "Sol OK", true);
 }
 
-function setStatus(id, isProblem, warnText, okText) {
+function setStatus(id, val, limit, warnText, okText, reverse) {
     const el = document.getElementById(id);
+
+    if (val === undefined) {
+        el.innerText = "⚪ Lipsă date";
+        el.style.background = "#eee";
+        return;
+    }
+    if (val === null) {
+        el.innerText = "⚪ --";
+        el.style.background = "#eee";
+        return;
+    }
+
+    const isProblem = reverse ? (val < limit) : (val > limit);
 
     if (isProblem) {
         el.innerText = "🔴 " + warnText;
