@@ -146,13 +146,13 @@ app.post("/insert", async (req, res) => {
 
     const prev = last.rows[0] || {};
 
-    const t = temperature ?? prev.temperature ?? null;
-    const h = humidity ?? prev.humidity ?? null;
-    const p = pressure ?? prev.pressure ?? null;
-    const l = illuminance ?? prev.illuminance ?? null;
-    const c = co2 ?? prev.co2 ?? null;
-    const s = soil ?? prev.soil ?? null;
-    const w = water_temp ?? prev.water_temp ?? null;
+    const t = temperature  ?? null;
+    const h = humidity  ?? null;
+    const p = pressure  ?? null;
+    const l = illuminance  ?? null;
+    const c = co2  ?? null;
+    const s = soil  ?? null;
+    const w = water_temp  ?? null;
 
     console.log("✅ FINAL INSERT:", { t, h, p, l, c, s, w });
 
