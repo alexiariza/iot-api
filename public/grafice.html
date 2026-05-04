@@ -97,19 +97,30 @@
             const data = await res.json();
 
             const clean = data.slice(0, 30).reverse();
-
-            let labels = [], temps = [], hums = [], press = [], light = [], soil = [], co2 = [], water = [];
-
+            
+            let last = {
+                t: null, h: null, p: null, l: null, s: null, c: null, w: null
+            };
+            
             clean.forEach(row => {
                 labels.push(new Date(row.created_at).toLocaleTimeString());
-                
-                temps.push(row.temperature);
-                hums.push(row.humidity);
-                press.push(row.pressure);
-                light.push(row.illuminance);
-                soil.push(row.soil);
-                co2.push(row.co2);
-                water.push(row.water_temp);
+            
+                if (row.temperature !== null) last.t = row.temperature;
+                if (row.humidity !== null) last.h = row.humidity;
+                if (row.pressure !== null) last.p = row.pressure;
+                if (row.illuminance !== null) last.l = row.illuminance;
+                if (row.soil !== null) last.s = row.soil;
+                if (row.co2 !== null) last.c = row.co2;
+                if (row.water_temp !== null) last.w = row.water_temp;
+            
+                temps.push(last.t);
+                hums.push(last.h);
+                press.push(last.p);
+                light.push(last.l);
+                soil.push(last.s);
+                co2.push(last.c);
+                water.push(last.w);
+});
             });
 
             // Update date pentru fiecare grafic în parte
