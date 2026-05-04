@@ -121,7 +121,17 @@ async function loadData() {
         const data = await res.json();
         if (!data.length) return;
 
-        const d = data[0];
+        const d = data.find(x => 
+            x.temperature !== null ||
+            x.humidity !== null ||
+            x.pressure !== null ||
+            x.illuminance !== null ||
+            x.co2 !== null ||
+            x.soil !== null ||
+            x.water_temp !== null
+        );
+
+if (!d) return;
 
         document.getElementById("temp").innerText = formatSensorValue(d.temperature, "°C");
         document.getElementById("hum").innerText = formatSensorValue(d.humidity, "%");
