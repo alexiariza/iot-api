@@ -43,22 +43,32 @@
         </main>
     </div>
 
-    <script>
-        // Funcție helper pentru a afișa "-" dacă valoarea lipsește
-        function formatValue(val, decimals = 1) {
-            if (val === null || val === undefined) return "-";
-            return typeof val === 'number' ? val.toFixed(decimals) : val;
-        }
+   <script>
+    function formatValue(val, decimals = 1) {
+        if (val === null || val === undefined) return "-";
+        return typeof val === 'number' ? val.toFixed(decimals) : val;
+    }
 
-        async function loadHistory() {
-            try {
-                const res = await fetch("https://iot-api-1-5qfd.onrender.com/data");
-                const data = await res.json();
+    async function loadHistory() {
+        try {
+            const res = await fetch("https://iot-api-1-5qfd.onrender.com/data");
+            const data = await res.json();
 
-                const table = document.querySelector("#historyTable tbody");
-                table.innerHTML = "";
+            const table = document.querySelector("#historyTable tbody");
+            table.innerHTML = "";
 
-                data.forEach(row => {
+            data
+                .filter(row =>
+                    row.temperature !== null ||
+                    row.humidity !== null ||
+                    row.pressure !== null ||
+                    row.illuminance !== null ||
+                    row.co2 !== null ||
+                    row.soil !== null ||
+                    row.water_temp !== null
+                )
+                .forEach(row => {
+
                     let tr = document.createElement("tr");
 
                     tr.innerHTML = `
@@ -75,15 +85,11 @@
                     table.appendChild(tr);
                 });
 
-            } catch (err) {
-                console.error("Eroare la încărcarea istoricului:", err);
-            }
+        } catch (err) {
+            console.error("Eroare la încărcarea istoricului:", err);
         }
+    }
 
-        loadHistory();
-        // Opțional: refresh automat la fiecare minut
-        setInterval(loadHistory, 60000);
-    </script>
-
-</body>
-</html>
+    loadHistory();
+    setInterval(loadHistory, 60000);
+</script>
