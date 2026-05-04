@@ -111,6 +111,8 @@ function updateStatus(d) {
     setStatus("light_status", d.illuminance, 25, true, "Lumină MICĂ", "Lumină OK");
     setStatus("co2_status", d.co2, 3080, false, "CO2 RIDICAT", "CO2 OK");
     setStatus("soil_status", d.soil, 35, true, "Sol USCAT", "Sol OK");
+    setStatus("water_status", d.water_temp, 25, false, "Apă CALDĂ", "Apă OK");
+
 }
 
 function setStatus(id, val, limit, reverse, warnText, okText) {
