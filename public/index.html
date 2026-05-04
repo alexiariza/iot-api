@@ -109,8 +109,9 @@
 </div>
 
 <script>
-function formatSensorValue(val, unit, isPressure = false) {
-    if (val === null || val === undefined || (val === 0 && !isPressure)) return "-- " + unit;
+function formatSensorValue(val, unit) {
+    if (val === null) return "-- " + unit;       
+    if (val === undefined) return "⚪";          
     return val + " " + unit;
 }
 
