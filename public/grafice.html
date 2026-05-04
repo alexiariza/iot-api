@@ -91,57 +91,58 @@
     const waterTempChart = new Chart(document.getElementById("waterTempChart"), createConfig('Temp Apă', 'cyan'));
 
     async function loadChart() {
-        try {
-            // Verifică dacă URL-ul API-ului este cel corect (cel din server.js)
-            const res = await fetch("https://iot-api-1-5qfd.onrender.com/data");
-            const data = await res.json();
+    try {
+        const res = await fetch("https://iot-api-1-5qfd.onrender.com/data");
+        const data = await res.json();
 
-            const clean = data.slice(0, 30).reverse();
-            
-            let last = {
-                t: null, h: null, p: null, l: null, s: null, c: null, w: null
-            };
-            
-            clean.forEach(row => {
-                labels.push(new Date(row.created_at).toLocaleTimeString());
-            
-                if (row.temperature !== null) last.t = row.temperature;
-                if (row.humidity !== null) last.h = row.humidity;
-                if (row.pressure !== null) last.p = row.pressure;
-                if (row.illuminance !== null) last.l = row.illuminance;
-                if (row.soil !== null) last.s = row.soil;
-                if (row.co2 !== null) last.c = row.co2;
-                if (row.water_temp !== null) last.w = row.water_temp;
-            
-                temps.push(last.t);
-                hums.push(last.h);
-                press.push(last.p);
-                light.push(last.l);
-                soil.push(last.s);
-                co2.push(last.c);
-                water.push(last.w);
-});
-            });
+        const clean = data.slice(0, 30).reverse();
 
-            // Update date pentru fiecare grafic în parte
-            tempChart.data.labels = labels; tempChart.data.datasets[0].data = temps;
-            humChart.data.labels = labels; humChart.data.datasets[0].data = hums;
-            pressChart.data.labels = labels; pressChart.data.datasets[0].data = press;
-            lightChart.data.labels = labels; lightChart.data.datasets[0].data = light;
-            soilChart.data.labels = labels; soilChart.data.datasets[0].data = soil;
-            co2Chart.data.labels = labels; co2Chart.data.datasets[0].data = co2;
-            waterTempChart.data.labels = labels; waterTempChart.data.datasets[0].data = water;
+        let labels = [], temps = [], hums = [], press = [], light = [], soil = [], co2 = [], water = [];
 
-            // Refresh vizual
-            tempChart.update(); humChart.update(); pressChart.update();
-            lightChart.update(); soilChart.update(); co2Chart.update();
-            waterTempChart.update();
+        let last = {
+            t: null, h: null, p: null, l: null, s: null, c: null, w: null
+        };
 
-        } catch (e) {
-            console.error("Eroare grafice:", e);
-        }
+        clean.forEach(row => {
+            labels.push(new Date(row.created_at).toLocaleTimeString());
+
+            if (row.temperature !== null) last.t = row.temperature;
+            if (row.humidity !== null) last.h = row.humidity;
+            if (row.pressure !== null) last.p = row.pressure;
+            if (row.illuminance !== null) last.l = row.illuminance;
+            if (row.soil !== null) last.s = row.soil;
+            if (row.co2 !== null) last.c = row.co2;
+            if (row.water_temp !== null) last.w = row.water_temp;
+
+            temps.push(last.t);
+            hums.push(last.h);
+            press.push(last.p);
+            light.push(last.l);
+            soil.push(last.s);
+            co2.push(last.c);
+            water.push(last.w);
+        });
+
+        tempChart.data.labels = labels; tempChart.data.datasets[0].data = temps;
+        humChart.data.labels = labels; humChart.data.datasets[0].data = hums;
+        pressChart.data.labels = labels; pressChart.data.datasets[0].data = press;
+        lightChart.data.labels = labels; lightChart.data.datasets[0].data = light;
+        soilChart.data.labels = labels; soilChart.data.datasets[0].data = soil;
+        co2Chart.data.labels = labels; co2Chart.data.datasets[0].data = co2;
+        waterTempChart.data.labels = labels; waterTempChart.data.datasets[0].data = water;
+
+        tempChart.update();
+        humChart.update();
+        pressChart.update();
+        lightChart.update();
+        soilChart.update();
+        co2Chart.update();
+        waterTempChart.update();
+
+    } catch (e) {
+        console.error("Eroare grafice:", e);
     }
-
+}
     loadChart();
     setInterval(loadChart, 10000);
 </script>
