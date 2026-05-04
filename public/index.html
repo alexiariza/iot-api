@@ -35,61 +35,13 @@
         </div>
 
         <div class="sensor-grid-modern">
-            <div class="card-modern temp">
-                <div class="icon">🌡️</div>
-                <div class="info">
-                    <span class="label">Temperatură Aer</span>
-                    <span class="value" id="temp">-- °C</span>
-                </div>
-            </div>
-
-            <div class="card-modern hum">
-                <div class="icon">💧</div>
-                <div class="info">
-                    <span class="label">Umiditate Aer</span>
-                    <span class="value" id="hum">-- %</span>
-                </div>
-            </div>
-
-            <div class="card-modern press">
-                <div class="icon">⏲️</div>
-                <div class="info">
-                    <span class="label">Presiune</span>
-                    <span class="value" id="press">-- hPa</span>
-                </div>
-            </div>
-
-            <div class="card-modern light">
-                <div class="icon">☀️</div>
-                <div class="info">
-                    <span class="label">Lumină</span>
-                    <span class="value" id="light">-- lux</span>
-                </div>
-            </div>
-
-            <div class="card-modern soil">
-                <div class="icon">🌱</div>
-                <div class="info">
-                    <span class="label">Umiditate Sol</span>
-                    <span class="value" id="soil">-- %</span>
-                </div>
-            </div>
-
-            <div class="card-modern co2">
-                <div class="icon">☁️</div>
-                <div class="info">
-                    <span class="label">Nivel CO2</span>
-                    <span class="value" id="co2">-- ppm</span>
-                </div>
-            </div>
-
-            <div class="card-modern water">
-                <div class="icon">🧪</div>
-                <div class="info">
-                    <span class="label">Temp. Apă</span>
-                    <span class="value" id="water">-- °C</span>
-                </div>
-            </div>
+            <div class="card-modern temp"><div class="icon">🌡️</div><div class="info"><span class="label">Temperatură Aer</span><span class="value" id="temp">-- °C</span></div></div>
+            <div class="card-modern hum"><div class="icon">💧</div><div class="info"><span class="label">Umiditate Aer</span><span class="value" id="hum">-- %</span></div></div>
+            <div class="card-modern press"><div class="icon">⏲️</div><div class="info"><span class="label">Presiune</span><span class="value" id="press">-- hPa</span></div></div>
+            <div class="card-modern light"><div class="icon">☀️</div><div class="info"><span class="label">Lumină</span><span class="value" id="light">-- lux</span></div></div>
+            <div class="card-modern soil"><div class="icon">🌱</div><div class="info"><span class="label">Umiditate Sol</span><span class="value" id="soil">-- %</span></div></div>
+            <div class="card-modern co2"><div class="icon">☁️</div><div class="info"><span class="label">Nivel CO2</span><span class="value" id="co2">-- ppm</span></div></div>
+            <div class="card-modern water"><div class="icon">🧪</div><div class="info"><span class="label">Temp. Apă</span><span class="value" id="water">-- °C</span></div></div>
         </div>
 
         <div class="control-panel">
@@ -109,19 +61,22 @@
 </div>
 
 <script>
+
+// 🔹 FORMAT VALORI
 function formatSensorValue(val, unit) {
-    if (val === null) return "-- " + unit;       
-    if (val === undefined) return "⚪";          
+    if (val === null) return "-- " + unit;
+    if (val === undefined) return "⚪";
     return val + " " + unit;
 }
 
+// 🔹 LOAD DATE SENZORI
 async function loadData() {
     try {
         const res = await fetch("https://iot-api-1-5qfd.onrender.com/data");
         const data = await res.json();
         if (!data.length) return;
 
-        const d = data.find(x => 
+        const d = data.find(x =>
             x.temperature !== null ||
             x.humidity !== null ||
             x.pressure !== null ||
@@ -131,31 +86,34 @@ async function loadData() {
             x.water_temp !== null
         );
 
-if (!d) return;
+        if (!d) return;
 
         document.getElementById("temp").innerText = formatSensorValue(d.temperature, "°C");
         document.getElementById("hum").innerText = formatSensorValue(d.humidity, "%");
-        document.getElementById("press").innerText = formatSensorValue(d.pressure, "hPa", true);
+        document.getElementById("press").innerText = formatSensorValue(d.pressure, "hPa");
         document.getElementById("light").innerText = formatSensorValue(d.illuminance, "lux");
         document.getElementById("soil").innerText = formatSensorValue(d.soil, "%");
         document.getElementById("co2").innerText = formatSensorValue(d.co2, "ppm");
         document.getElementById("water").innerText = formatSensorValue(d.water_temp, "°C");
 
-        updateStatusSameAsPython(d);
+        updateStatus(d);
 
-    } catch(err) { console.error(err); }
+    } catch(err) {
+        console.error(err);
+    }
 }
 
-function updateStatusSameAsPython(d) {
-    setStatus("temp_status", d.temperature, 28, "Temp. MARE", "Temp. OK", false);
-    setStatus("hum_status", d.humidity, 40, "Aer USCAT", "Umiditate OK", true);
-    setStatus("press_status", d.pressure, 1000, "Presiune MICĂ", "Presiune OK", true);
-    setStatus("light_status", d.illuminance, 25, "Lumină MICĂ", "Lumină OK", true);
-    setStatus("co2_status", d.co2, 1000, "CO2 RIDICAT", "CO2 OK", false);
-    setStatus("soil_status", d.soil, 35, "Sol USCAT", "Sol OK", true);
+// 🔹 STATUS
+function updateStatus(d) {
+    setStatus("temp_status", d.temperature, 28, false, "Temp. MARE", "Temp. OK");
+    setStatus("hum_status", d.humidity, 40, true, "Aer USCAT", "Umiditate OK");
+    setStatus("press_status", d.pressure, 1000, true, "Presiune MICĂ", "Presiune OK");
+    setStatus("light_status", d.illuminance, 25, true, "Lumină MICĂ", "Lumină OK");
+    setStatus("co2_status", d.co2, 1000, false, "CO2 RIDICAT", "CO2 OK");
+    setStatus("soil_status", d.soil, 35, true, "Sol USCAT", "Sol OK");
 }
 
-function setStatus(id, val, limit, warnText, okText, reverse) {
+function setStatus(id, val, limit, reverse, warnText, okText) {
     const el = document.getElementById(id);
 
     if (val === undefined) {
@@ -163,15 +121,16 @@ function setStatus(id, val, limit, warnText, okText, reverse) {
         el.style.background = "#eee";
         return;
     }
+
     if (val === null) {
         el.innerText = "⚪ --";
         el.style.background = "#eee";
         return;
     }
 
-    const isProblem = reverse ? (val < limit) : (val > limit);
+    const problem = reverse ? val < limit : val > limit;
 
-    if (isProblem) {
+    if (problem) {
         el.innerText = "🔴 " + warnText;
         el.style.background = "#f8d7da";
     } else {
@@ -180,7 +139,7 @@ function setStatus(id, val, limit, warnText, okText, reverse) {
     }
 }
 
-// 🔥 MANUAL
+// 🔥 CONTROL MANUAL
 async function controlIrigation(cmd) {
     try {
         await fetch("https://iot-api-1-5qfd.onrender.com/command", {
@@ -189,18 +148,10 @@ async function controlIrigation(cmd) {
             body: JSON.stringify({ command: cmd })
         });
 
-        const statusText = document.querySelector(".status-text");
-
-        if(cmd === 1) {
-            statusText.innerText = "PORNITĂ (MANUAL)";
-            statusText.className = "status-text on";
-        } else {
-            statusText.innerText = "OPRITĂ (MANUAL)";
-            statusText.className = "status-text off";
-        }
+        loadControlState();
 
     } catch(e) {
-        alert("Eroare la trimiterea comenzii!");
+        alert("Eroare comandă!");
     }
 }
 
@@ -211,17 +162,46 @@ async function setAuto() {
             method: "POST"
         });
 
-        const statusText = document.querySelector(".status-text");
-        statusText.innerText = "AUTO";
-        statusText.className = "status-text";
+        loadControlState();
 
     } catch(e) {
         alert("Eroare AUTO!");
     }
 }
 
+// 🔥 SINCRONIZARE STARE
+async function loadControlState() {
+    try {
+        const res = await fetch("https://iot-api-1-5qfd.onrender.com/get_control");
+        const data = await res.json();
+
+        const statusText = document.querySelector(".status-text");
+
+        if (data.manual_control) {
+            if (data.state === 1) {
+                statusText.innerText = "PORNITĂ (MANUAL)";
+                statusText.className = "status-text on";
+            } else {
+                statusText.innerText = "OPRITĂ (MANUAL)";
+                statusText.className = "status-text off";
+            }
+        } else {
+            statusText.innerText = "AUTO";
+            statusText.className = "status-text";
+        }
+
+    } catch (e) {
+        console.error(e);
+    }
+}
+
+// 🔁 LOOP
 loadData();
+loadControlState();
+
 setInterval(loadData, 5000);
+setInterval(loadControlState, 5000);
+
 </script>
 
 </body>
