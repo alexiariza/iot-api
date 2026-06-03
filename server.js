@@ -19,8 +19,9 @@ const __dirname = path.dirname(__filename);
 app.use(express.static(path.join(__dirname, "public")));
 
 // ================= CONTROL GLOBAL =================
-let manual_control = false; // 🔥 AUTO implicit
-let manual_state = 0;       // 🔥 0 = OFF, 1 = ON
+let manual_control = false;
+let manual_state = 0;
+let manual_duration = 0;
 
 // ================= DB =================
 const pool = new Pool({
@@ -42,9 +43,13 @@ async function initDB() {
         soil FLOAT,
         water_temp FLOAT,
         command INTEGER,
+        duration INTEGER,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       );
     `);
+
+    await pool.query("ALTER TABLE sensor_data ADD COLUMN IF NOT EXISTS command INTEGER");
+    await pool.query("ALTER TABLE sensor_data ADD COLUMN IF NOT EXISTS duration INTEGER");
 
     console.log("✅ TABLE READY");
 
@@ -63,26 +68,30 @@ app.get("/", (req, res) => {
 // ================= GET CONTROL =================
 app.get("/get_control", (req, res) => {
   res.json({
-    manual_control: manual_control,
-    state: manual_state
+    manual_control,
+    state: manual_state,
+    duration: manual_duration
   });
 });
 
 // ================= SET MANUAL =================
 app.post("/command", (req, res) => {
   try {
-    const { command } = req.body;
+    const { command, duration } = req.body;
 
-    console.log("🔥 COMMAND RECEIVED:", command);
+    manual_control = true;
+    manual_state = command === 1 ? 1 : 0;
+    manual_duration = manual_state === 1 ? Number(duration || 0) : 0;
 
-    manual_control = true;                 // 🔥 activăm manual
-    manual_state = command === 1 ? 1 : 0;  // 🔥 siguranță 0/1
-
-    console.log("🎮 MANUAL MODE:", manual_state);
+    console.log("🎮 MANUAL:", {
+      state: manual_state,
+      duration: manual_duration
+    });
 
     res.json({
       status: "manual mode ON",
-      state: manual_state
+      state: manual_state,
+      duration: manual_duration
     });
 
   } catch (err) {
@@ -95,6 +104,7 @@ app.post("/command", (req, res) => {
 app.post("/auto", (req, res) => {
   manual_control = false;
   manual_state = 0;
+  manual_duration = 0;
 
   console.log("🤖 AUTO MODE ACTIVAT");
 
@@ -127,7 +137,6 @@ app.post("/insert", async (req, res) => {
 
     console.log("📥 RAW:", req.body);
 
-    // retry connect
     for (let i = 0; i < 3; i++) {
       try {
         client = await pool.connect();
@@ -140,19 +149,26 @@ app.post("/insert", async (req, res) => {
 
     if (!client) throw new Error("DB connect failed");
 
-    const last = await client.query(
-      "SELECT * FROM sensor_data ORDER BY id DESC LIMIT 1"
-    );
+    const t = temperature ?? null;
+    const h = humidity ?? null;
+    const p = pressure ?? null;
+    const l = illuminance ?? null;
+    const c = co2 ?? null;
+    const s = soil ?? null;
+    const w = water_temp ?? null;
 
-    const prev = last.rows[0] || {};
-
-    const t = temperature  ?? null;
-    const h = humidity  ?? null;
-    const p = pressure  ?? null;
-    const l = illuminance  ?? null;
-    const c = co2  ?? null;
-    const s = soil  ?? null;
-    const w = water_temp  ?? null;
+    if (
+      t === null &&
+      h === null &&
+      p === null &&
+      l === null &&
+      c === null &&
+      s === null &&
+      w === null
+    ) {
+      console.log("⚠️ Pachet gol ignorat");
+      return res.json({ status: "ignored empty packet" });
+    }
 
     console.log("✅ FINAL INSERT:", { t, h, p, l, c, s, w });
 
