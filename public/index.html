@@ -48,11 +48,21 @@
         <div class="control-panel">
             <h3>Control Sistem Irigație</h3>
 
-            <div class="btn-group">
-                <button class="btn btn-on" onclick="controlIrigation(1)">PORNEȘTE</button>
-                <button class="btn btn-off" onclick="controlIrigation(0)">OPREȘTE</button>
-                <button class="btn" style="background:#3498db;color:white;" onclick="setAuto()">AUTO</button>
-            </div>
+           <div class="btn-group">
+                <div class="dropdown-start">
+                    <button class="btn btn-on dropdown-btn">PORNEȘTE ▼</button>
+                    <div class="dropdown-content">
+                        <button onclick="controlIrigation(1, 1)">1 minut</button>
+                        <button onclick="controlIrigation(1, 3)">3 minute</button>
+                        <button onclick="controlIrigation(1, 5)">5 minute</button>
+                        <button onclick="controlIrigation(1, 10)">10 minute</button>
+                        <button onclick="controlIrigation(1, 15)">15 minute</button>
+                    </div>
+                </div>
+
+    <button class="btn btn-off" onclick="controlIrigation(0, 0)">OPREȘTE</button>
+    <button class="btn" style="background:#3498db;color:white;" onclick="setAuto()">AUTO</button>
+</div>
 
             <div id="irrigation-status" class="irrigation-indicator">
                 Stare actuală: <span class="status-text off">OPRITĂ</span>
@@ -142,13 +152,15 @@ function setStatus(id, val, limit, reverse, warnText, okText) {
     }
 }
 
-// 🔥 CONTROL MANUAL
-async function controlIrigation(cmd) {
+async function controlIrigation(cmd, duration = 0) {
     try {
         await fetch("https://iot-api-1-5qfd.onrender.com/command", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ command: cmd })
+            body: JSON.stringify({
+                command: cmd,
+                duration: duration
+            })
         });
 
         loadControlState();
