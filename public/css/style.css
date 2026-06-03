@@ -89,7 +89,12 @@ header h1 {
     border-radius: 12px;
 }
 .card-modern .label { color: #7f8c8d; font-size: 14px; }
-.card-modern .value { font-size: 22px; font-weight: bold; color: #2c3e50; }
+.card-modern .value { 
+    font-size: 22px; 
+    font-weight: bold; 
+    color: #2c3e50; 
+    white-space: nowrap; /* 🔥 OPREȘTE RUPEREA DE RÂND */
+}
 
 /* CULORI CARDURI */
 .temp { border-color: #e74c3c; }
