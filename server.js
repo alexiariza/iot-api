@@ -22,6 +22,7 @@ app.use(express.static(path.join(__dirname, "public")));
 let manual_control = false;
 let manual_state = 0;
 let manual_duration = 0;
+let irrigationTimer = null;
 
 // ================= DB =================
 const pool = new Pool({
@@ -83,6 +84,21 @@ app.post("/command", (req, res) => {
     manual_state = command === 1 ? 1 : 0;
     manual_duration = manual_state === 1 ? Number(duration || 0) : 0;
 
+    if (irrigationTimer) {
+      clearTimeout(irrigationTimer);
+      irrigationTimer = null;
+    }
+
+    if (manual_state === 1 && manual_duration > 0) {
+      irrigationTimer = setTimeout(() => {
+        manual_state = 0;
+        manual_duration = 0;
+        irrigationTimer = null;
+
+        console.log("⏰ Timp expirat -> OPRIRE AUTOMATĂ ÎN UI");
+      }, manual_duration * 60000);
+    }
+
     console.log("🎮 MANUAL:", {
       state: manual_state,
       duration: manual_duration
@@ -105,6 +121,11 @@ app.post("/auto", (req, res) => {
   manual_control = false;
   manual_state = 0;
   manual_duration = 0;
+
+  if (irrigationTimer) {
+    clearTimeout(irrigationTimer);
+    irrigationTimer = null;
+  }
 
   console.log("🤖 AUTO MODE ACTIVAT");
 
