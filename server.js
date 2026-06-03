@@ -22,11 +22,7 @@ app.use(express.static(path.join(__dirname, "public")));
 let manual_control = false;
 let manual_state = 0;
 let manual_duration = 0;
-
-// stare reală raportată de actuator
-let actuator_state = 0;        // 0 = oprit, 1 = pornit
-let actuator_duration = 0;     // durata reală primită
-let actuator_last_event = "OFF";
+let irrigationTimer = null;
 
 // ================= DB =================
 const pool = new Pool({
@@ -75,11 +71,7 @@ app.get("/get_control", (req, res) => {
   res.json({
     manual_control,
     state: manual_state,
-    duration: manual_duration,
-
-    actuator_state,
-    actuator_duration,
-    actuator_last_event
+    duration: manual_duration
   });
 });
 
@@ -92,49 +84,30 @@ app.post("/command", (req, res) => {
     manual_state = command === 1 ? 1 : 0;
     manual_duration = manual_state === 1 ? Number(duration || 0) : 0;
 
-    console.log("🎮 COMANDĂ MANUALĂ:", {
-      state: manual_state,
-      duration: manual_duration
-    });
-
-    res.json({
-      status: "manual command saved",
-      state: manual_state,
-      duration: manual_duration
-    });
-
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: "server error" });
-  }
-});
-
-// ================= STATUS REAL ACTUATOR =================
-app.post("/actuator-status", (req, res) => {
-  try {
-    const { state, duration, event } = req.body;
-
-    actuator_state = state === 1 ? 1 : 0;
-    actuator_duration = Number(duration || 0);
-    actuator_last_event = event || (actuator_state === 1 ? "STARTED" : "STOPPED");
-
-    // când actuatorul confirmă STOPPED, actualizăm și starea afișată în UI
-    if (actuator_state === 0) {
-      manual_state = 0;
-      manual_duration = 0;
+    if (irrigationTimer) {
+      clearTimeout(irrigationTimer);
+      irrigationTimer = null;
     }
 
-    console.log("📡 STATUS ACTUATOR:", {
-      actuator_state,
-      actuator_duration,
-      actuator_last_event
+    if (manual_state === 1 && manual_duration > 0) {
+      irrigationTimer = setTimeout(() => {
+        manual_state = 0;
+        manual_duration = 0;
+        irrigationTimer = null;
+
+        console.log("⏰ Timp expirat -> OPRIRE AUTOMATĂ ÎN UI");
+      }, manual_duration * 60000);
+    }
+
+    console.log("🎮 MANUAL:", {
+      state: manual_state,
+      duration: manual_duration
     });
 
     res.json({
-      status: "actuator status updated",
-      actuator_state,
-      actuator_duration,
-      actuator_last_event
+      status: "manual mode ON",
+      state: manual_state,
+      duration: manual_duration
     });
 
   } catch (err) {
@@ -148,6 +121,11 @@ app.post("/auto", (req, res) => {
   manual_control = false;
   manual_state = 0;
   manual_duration = 0;
+
+  if (irrigationTimer) {
+    clearTimeout(irrigationTimer);
+    irrigationTimer = null;
+  }
 
   console.log("🤖 AUTO MODE ACTIVAT");
 
