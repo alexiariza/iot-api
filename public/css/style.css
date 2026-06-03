@@ -87,10 +87,9 @@ header h1 {
     width: 60px; height: 60px;
     display: flex; align-items: center; justify-content: center;
     border-radius: 12px;
-    flex-shrink: 0; /* Previne deformarea iconiței pe ecrane mici */
+    flex-shrink: 0;
 }
 
-/* FIX ALINIERE: Spațiul dedicat textului și valorii devine container flexibil */
 .card-modern .info {
     display: flex;
     align-items: center;
@@ -109,8 +108,8 @@ header h1 {
     font-size: 22px; 
     font-weight: bold; 
     color: #2c3e50; 
-    white-space: nowrap; /* Împiedică separarea numărului de unitate (°C / % / lux) */
-    margin-left: auto;   /* Împinge valoarea ferm în extremitatea dreaptă a cardului */
+    white-space: nowrap; 
+    margin-left: auto;   
 }
 
 /* CULORI CARDURI */
@@ -154,4 +153,56 @@ header h1 {
     background: white; border-radius: 10px; overflow: hidden;
     box-shadow: 0 4px 15px rgba(0,0,0,0.05);
 }
-.history-table th { background: #2e8b57;
+.history-table th { background: #2e8b57; color: white; padding: 15px; }
+.history-table td { padding: 12px; border-bottom: 1px solid #eee; text-align: center; }
+.history-table tr:hover { background: #f9f9f9; }
+
+/* 🔥 FIX COMPLET DROPDOWN PORNEȘTE */
+.dropdown-start {
+    position: relative;
+    display: inline-block;
+    margin: 10px; /* Preia marginea butonului pentru aliniere */
+}
+
+.dropdown-start .btn-on {
+    margin: 0; /* Anulăm marginea dublă din interior */
+}
+
+.dropdown-btn {
+    min-width: 180px;
+}
+
+.dropdown-content {
+    display: none;
+    position: absolute;
+    top: 100%; /* Se deschide exact sub buton */
+    left: 0;
+    width: 100%; /* Ia exact lățimea butonului PORNEȘTE */
+    background: white;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.18);
+    border-radius: 10px;
+    z-index: 100;
+    overflow: hidden;
+}
+
+.dropdown-content button {
+    width: 100%;
+    padding: 12px 16px;
+    border: none;
+    background: white;
+    cursor: pointer;
+    text-align: center; /* Centrăm textul minutelor */
+    font-weight: bold;
+    color: #2c3e50;
+    transition: 0.2s;
+}
+
+.dropdown-content button:hover {
+    background: #eaf7ea;
+    color: #2e8b57;
+}
+
+/* Afișare meniu la trecerea mouse-ului */
+.dropdown-start:hover .dropdown-content {
+    display: block;
+}
