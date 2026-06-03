@@ -36,19 +36,67 @@
         </div>
 
         <div class="sensor-grid-modern">
-            <div class="card-modern temp"><div class="icon">🌡️</div><div class="info"><span class="label">Temperatură Aer</span><span class="value" id="temp">-- °C</span></div></div>
-            <div class="card-modern hum"><div class="icon">💧</div><div class="info"><span class="label">Umiditate Aer</span><span class="value" id="hum">-- %</span></div></div>
-            <div class="card-modern press"><div class="icon">⏲️</div><div class="info"><span class="label">Presiune</span><span class="value" id="press">-- hPa</span></div></div>
-            <div class="card-modern light"><div class="icon">☀️</div><div class="info"><span class="label">Lumină</span><span class="value" id="light">-- lux</span></div></div>
-            <div class="card-modern soil"><div class="icon">🌱</div><div class="info"><span class="label">Umiditate Sol</span><span class="value" id="soil">-- %</span></div></div>
-            <div class="card-modern co2"><div class="icon">☁️</div><div class="info"><span class="label">Nivel CO2</span><span class="value" id="co2">-- ppm</span></div></div>
-            <div class="card-modern water"><div class="icon">🧪</div><div class="info"><span class="label">Temperatură Apă</span><span class="value" id="water">-- °C</span></div></div>
+            <div class="card-modern temp">
+                <div class="icon">🌡️</div>
+                <div class="info">
+                    <span class="label">Temperatură Aer</span>
+                    <span class="value" id="temp">-- °C</span>
+                </div>
+            </div>
+
+            <div class="card-modern hum">
+                <div class="icon">💧</div>
+                <div class="info">
+                    <span class="label">Umiditate Aer</span>
+                    <span class="value" id="hum">-- %</span>
+                </div>
+            </div>
+
+            <div class="card-modern press">
+                <div class="icon">⏲️</div>
+                <div class="info">
+                    <span class="label">Presiune</span>
+                    <span class="value" id="press">-- hPa</span>
+                </div>
+            </div>
+
+            <div class="card-modern light">
+                <div class="icon">☀️</div>
+                <div class="info">
+                    <span class="label">Lumină</span>
+                    <span class="value" id="light">-- lux</span>
+                </div>
+            </div>
+
+            <div class="card-modern soil">
+                <div class="icon">🌱</div>
+                <div class="info">
+                    <span class="label">Umiditate Sol</span>
+                    <span class="value" id="soil">-- %</span>
+                </div>
+            </div>
+
+            <div class="card-modern co2">
+                <div class="icon">☁️</div>
+                <div class="info">
+                    <span class="label">Nivel CO2</span>
+                    <span class="value" id="co2">-- ppm</span>
+                </div>
+            </div>
+
+            <div class="card-modern water">
+                <div class="icon">🧪</div>
+                <div class="info">
+                    <span class="label">Temperatură Apă</span>
+                    <span class="value" id="water">-- °C</span>
+                </div>
+            </div>
         </div>
 
         <div class="control-panel">
             <h3>Control Sistem Irigație</h3>
 
-           <div class="btn-group">
+            <div class="btn-group">
                 <div class="dropdown-start">
                     <button class="btn btn-on dropdown-btn">PORNEȘTE ▼</button>
                     <div class="dropdown-content">
@@ -60,9 +108,9 @@
                     </div>
                 </div>
 
-    <button class="btn btn-off" onclick="controlIrigation(0, 0)">OPREȘTE</button>
-    <button class="btn" style="background:#3498db;color:white;" onclick="setAuto()">AUTO</button>
-</div>
+                <button class="btn btn-off" onclick="controlIrigation(0, 0)">OPREȘTE</button>
+                <button class="btn" style="background:#3498db;color:white;" onclick="setAuto()">AUTO</button>
+            </div>
 
             <div id="irrigation-status" class="irrigation-indicator">
                 Stare actuală: <span class="status-text off">OPRITĂ</span>
@@ -72,15 +120,12 @@
 </div>
 
 <script>
-
-// 🔹 FORMAT VALORI
 function formatSensorValue(val, unit) {
     if (val === null) return "-- " + unit;
     if (val === undefined) return "⚪";
     return val + " " + unit;
 }
 
-// 🔹 LOAD DATE SENZORI
 async function loadData() {
     try {
         const res = await fetch("https://iot-api-1-5qfd.onrender.com/data");
@@ -114,7 +159,6 @@ async function loadData() {
     }
 }
 
-// 🔹 STATUS
 function updateStatus(d) {
     setStatus("temp_status", d.temperature, 28, false, "Temp. MARE", "Temp. OK");
     setStatus("hum_status", d.humidity, 40, true, "Aer USCAT", "Umiditate OK");
@@ -123,7 +167,6 @@ function updateStatus(d) {
     setStatus("co2_status", d.co2, 3080, false, "CO2 RIDICAT", "CO2 OK");
     setStatus("soil_status", d.soil, 35, true, "Sol USCAT", "Sol OK");
     setStatus("water_status", d.water_temp, 25, false, "Apă CALDĂ", "Apă OK");
-
 }
 
 function setStatus(id, val, limit, reverse, warnText, okText) {
@@ -170,7 +213,6 @@ async function controlIrigation(cmd, duration = 0) {
     }
 }
 
-// 🔥 AUTO
 async function setAuto() {
     try {
         await fetch("https://iot-api-1-5qfd.onrender.com/auto", {
@@ -184,7 +226,6 @@ async function setAuto() {
     }
 }
 
-// 🔥 SINCRONIZARE STARE
 async function loadControlState() {
     try {
         const res = await fetch("https://iot-api-1-5qfd.onrender.com/get_control");
@@ -194,7 +235,12 @@ async function loadControlState() {
 
         if (data.manual_control) {
             if (data.state === 1) {
-                statusText.innerText = "PORNITĂ (MANUAL)";
+                if (data.duration && data.duration > 0) {
+                    statusText.innerText = `PORNITĂ (MANUAL - ${data.duration} min)`;
+                } else {
+                    statusText.innerText = "PORNITĂ (MANUAL)";
+                }
+
                 statusText.className = "status-text on";
             } else {
                 statusText.innerText = "OPRITĂ (MANUAL)";
@@ -210,13 +256,11 @@ async function loadControlState() {
     }
 }
 
-// 🔁 LOOP
 loadData();
 loadControlState();
 
 setInterval(loadData, 5000);
 setInterval(loadControlState, 5000);
-
 </script>
 
 </body>
