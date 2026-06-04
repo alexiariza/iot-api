@@ -51,7 +51,7 @@ async function initDB() {
 
     await pool.query("ALTER TABLE sensor_data ADD COLUMN IF NOT EXISTS command INTEGER");
     await pool.query("ALTER TABLE sensor_data ADD COLUMN IF NOT EXISTS duration INTEGER");
-
+    await pool.query("ALTER TABLE sensor_data ADD COLUMN IF NOT EXISTS auto_cmd INTEGER");
     console.log("✅ TABLE READY");
 
   } catch (err) {
@@ -154,7 +154,7 @@ app.post("/insert", async (req, res) => {
   let client;
 
   try {
-    let { temperature, humidity, pressure, illuminance, co2, soil, water_temp } = req.body;
+    let { temperature, humidity, pressure, illuminance, co2, soil, water_temp, auto_cmd } = req.body;
 
     console.log("📥 RAW:", req.body);
 
@@ -177,6 +177,7 @@ app.post("/insert", async (req, res) => {
     const c = co2 ?? null;
     const s = soil ?? null;
     const w = water_temp ?? null;
+    const a = auto_cmd ?? 0;
 
     if (
       t === null &&
@@ -195,9 +196,9 @@ app.post("/insert", async (req, res) => {
 
     await client.query(
       `INSERT INTO sensor_data 
-      (temperature, humidity, pressure, illuminance, co2, soil, water_temp) 
-      VALUES ($1,$2,$3,$4,$5,$6,$7)`,
-      [t, h, p, l, c, s, w]
+      (temperature, humidity, pressure, illuminance, co2, soil, water_temp, auto_cmd) 
+      VALUES ($1,$2,$3,$4,$5,$6,$7,$8)`,
+      [t, h, p, l, c, s, w, a]
     );
 
     res.json({ status: "ok" });
