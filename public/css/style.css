@@ -206,3 +206,21 @@ header h1 {
 .dropdown-start:hover .dropdown-content {
     display: block;
 }
+.auto-actuator-status {
+    margin-top: 15px;
+    padding: 12px 18px;
+    border-radius: 12px;
+    font-size: 16px;
+    font-weight: bold;
+    display: inline-block;
+}
+
+.auto-ok {
+    background: #d4edda;
+    color: #155724;
+}
+
+.auto-warning {
+    background: #fff3cd;
+    color: #856404;
+}
