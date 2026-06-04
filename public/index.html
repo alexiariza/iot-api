@@ -115,6 +115,9 @@
             <div id="irrigation-status" class="irrigation-indicator">
                 Stare actuală: <span class="status-text off">OPRITĂ</span>
             </div>
+            <div id="auto-actuator-status" class="auto-actuator-status">
+                Actuator AUTO: se așteaptă date...
+            </div>
         </div>
     </main>
 </div>
@@ -152,7 +155,7 @@ async function loadData() {
         document.getElementById("co2").innerText = formatSensorValue(d.co2, "ppm");
         document.getElementById("water").innerText = formatSensorValue(d.water_temp, "°C");
 
-        updateStatus(d);
+        updateStatus(d.auto_cmd);
 
     } catch(err) {
         console.error(err);
@@ -253,6 +256,29 @@ async function loadControlState() {
 
     } catch (e) {
         console.error(e);
+    }
+}
+    function updateAutoActuatorStatus(cmd) {
+    const el = document.getElementById("auto-actuator-status");
+
+    cmd = Number(cmd || 0);
+
+    const active = [];
+
+    if (cmd & 1) active.push("C1 Temperatură aer mare");
+    if (cmd & 2) active.push("C2 Umiditate aer mică");
+    if (cmd & 4) active.push("C3 Presiune mică");
+    if (cmd & 8) active.push("C4 Lumină mică");
+    if (cmd & 16) active.push("C5 CO2 ridicat");
+    if (cmd & 32) active.push("C6 Apă caldă");
+    if (cmd & 64) active.push("C7 Sol uscat");
+
+    if (active.length === 0) {
+        el.innerText = "Actuator AUTO: OPRIT / toți parametrii sunt OK";
+        el.className = "auto-actuator-status auto-ok";
+    } else {
+        el.innerText = "Actuator AUTO activ: " + active.join(" | ");
+        el.className = "auto-actuator-status auto-warning";
     }
 }
 
