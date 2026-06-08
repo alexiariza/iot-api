@@ -20,7 +20,7 @@ app.use(express.static(path.join(__dirname, "public")));
 
 // ================= CONTROL GLOBAL =================
 let manual_control = false;
-let manual_state = 0;
+let manual_command = 0;
 let manual_duration = 0;
 let irrigationTimer = null;
 
@@ -70,7 +70,7 @@ app.get("/", (req, res) => {
 app.get("/get_control", (req, res) => {
   res.json({
     manual_control,
-    state: manual_state,
+    command: manual_command,
     duration: manual_duration
   });
 });
@@ -81,32 +81,32 @@ app.post("/command", (req, res) => {
     const { command, duration } = req.body;
 
     manual_control = true;
-    manual_state = command === 1 ? 1 : 0;
-    manual_duration = manual_state === 1 ? Number(duration || 0) : 0;
+    manual_command = Number(command || 0);
+    manual_duration = manual_command !== 0 ? Number(duration || 0) : 0;
 
     if (irrigationTimer) {
       clearTimeout(irrigationTimer);
       irrigationTimer = null;
     }
 
-    if (manual_state === 1 && manual_duration > 0) {
+    if (manual_command !== 0 && manual_duration > 0) {
       irrigationTimer = setTimeout(() => {
-        manual_state = 0;
+        manual_command = 0;
         manual_duration = 0;
         irrigationTimer = null;
 
-        console.log("⏰ Timp expirat -> OPRIRE AUTOMATĂ ÎN UI");
+        console.log("⏰ Timp expirat -> OPRIRE MANUALĂ");
       }, manual_duration * 60000);
     }
 
     console.log("🎮 MANUAL:", {
-      state: manual_state,
+      command: manual_command,
       duration: manual_duration
     });
 
     res.json({
       status: "manual mode ON",
-      state: manual_state,
+      command: manual_command,
       duration: manual_duration
     });
 
@@ -119,7 +119,7 @@ app.post("/command", (req, res) => {
 // ================= SET AUTO =================
 app.post("/auto", (req, res) => {
   manual_control = false;
-  manual_state = 0;
+  manual_command = 0;
   manual_duration = 0;
 
   if (irrigationTimer) {
