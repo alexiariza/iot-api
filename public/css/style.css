@@ -240,3 +240,41 @@ header h1 {
     box-shadow: 0 4px 0 #7f8c8d;
     cursor: not-allowed;
 }
+.multi-select {
+    position: relative;
+    width: 260px;
+}
+
+.multi-select-btn {
+    width: 100%;
+    background: #f1c40f;
+    color: #111;
+    border: none;
+    border-radius: 12px;
+    padding: 18px 20px;
+    font-weight: bold;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+.multi-select-content {
+    display: none;
+    position: absolute;
+    background: white;
+    min-width: 260px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    border-radius: 10px;
+    z-index: 10;
+    padding: 10px;
+    text-align: left;
+}
+
+.multi-select-content label {
+    display: block;
+    padding: 8px;
+    cursor: pointer;
+}
+
+.multi-select:hover .multi-select-content {
+    display: block;
+}
