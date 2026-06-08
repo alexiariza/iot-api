@@ -174,7 +174,15 @@ async function loadData() {
         document.getElementById("water").innerText = formatSensorValue(d.water_temp, "°C");
 
         updateStatus(d);
-        updateAutoActuatorStatus(d.auto_cmd);
+
+        const controlRes = await fetch("https://iot-api-1-5qfd.onrender.com/get_control");
+        const control = await controlRes.json();
+
+        if (control.manual_control) {
+            updateManualActuatorStatus(control.command);
+        } else {
+            updateAutoActuatorStatus(d.auto_cmd);
+        }
 
     } catch(err) {
         console.error(err);
@@ -229,6 +237,7 @@ async function controlIrigation(cmd, duration = 0) {
         });
 
         loadControlState();
+        loadData();
 
     } catch(e) {
         alert("Eroare comandă!");
@@ -242,6 +251,7 @@ async function setAuto() {
         });
 
         loadControlState();
+        loadData();
 
     } catch(e) {
         alert("Eroare AUTO!");
@@ -312,6 +322,20 @@ function updateAutoActuatorStatus(cmd) {
         el.className = "auto-actuator-status auto-ok";
     } else {
         el.innerText = "Actuator AUTO activ: " + active.join(" | ");
+        el.className = "auto-actuator-status auto-warning";
+    }
+}
+
+function updateManualActuatorStatus(cmd) {
+    const el = document.getElementById("auto-actuator-status");
+
+    cmd = Number(cmd || 0);
+
+    if (cmd === 0) {
+        el.innerText = "Actuator MANUAL: OPRIT";
+        el.className = "auto-actuator-status auto-ok";
+    } else {
+        el.innerText = "Actuator MANUAL activ: " + getOutputName(cmd);
         el.className = "auto-actuator-status auto-warning";
     }
 }
