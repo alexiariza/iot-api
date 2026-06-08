@@ -27,7 +27,9 @@ header h1 {
 }
 
 .sidebar ul { list-style: none; padding: 0; margin: 0; }
+
 .sidebar li { border-bottom: 1px solid #34495e; }
+
 .sidebar a {
     color: #ecf0f1;
     text-decoration: none;
@@ -35,7 +37,11 @@ header h1 {
     padding: 18px 20px;
     transition: 0.3s;
 }
-.sidebar a:hover { background: #34495e; padding-left: 30px; }
+
+.sidebar a:hover {
+    background: #34495e;
+    padding-left: 30px;
+}
 
 /* CONTENT */
 .content {
@@ -50,6 +56,7 @@ header h1 {
     gap: 10px;
     margin-bottom: 30px;
 }
+
 .status-badge {
     padding: 8px 16px;
     border-radius: 20px;
@@ -78,14 +85,21 @@ header h1 {
     transition: 0.3s;
     border-bottom: 5px solid #ddd;
 }
-.card-modern:hover { transform: translateY(-5px); box-shadow: 0 8px 25px rgba(0,0,0,0.1); }
+
+.card-modern:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+}
 
 .card-modern .icon {
     font-size: 32px;
     margin-right: 15px;
     background: #f8f9fa;
-    width: 60px; height: 60px;
-    display: flex; align-items: center; justify-content: center;
+    width: 60px;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     border-radius: 12px;
     flex-shrink: 0;
 }
@@ -98,18 +112,18 @@ header h1 {
     min-width: 0;
 }
 
-.card-modern .label { 
-    color: #7f8c8d; 
-    font-size: 14px; 
+.card-modern .label {
+    color: #7f8c8d;
+    font-size: 14px;
     padding-right: 8px;
 }
 
-.card-modern .value { 
-    font-size: 22px; 
-    font-weight: bold; 
-    color: #2c3e50; 
-    white-space: nowrap; 
-    margin-left: auto;   
+.card-modern .value {
+    font-size: 22px;
+    font-weight: bold;
+    color: #2c3e50;
+    white-space: nowrap;
+    margin-left: auto;
 }
 
 /* CULORI CARDURI */
@@ -129,63 +143,70 @@ header h1 {
     text-align: center;
     box-shadow: 0 4px 15px rgba(0,0,0,0.05);
 }
-.btn {
-    width: 220px;
-    height: 60px;
 
-    border: none;
-    border-radius: 12px;
-
-    font-weight: bold;
-    font-size: 16px;
-
-    cursor: pointer;
-    transition: 0.3s;
-    text-transform: uppercase;
-
+.btn-group {
     display: flex;
     align-items: center;
     justify-content: center;
+    gap: 30px;
+    flex-wrap: wrap;
 }
-.btn-on { background: #2ecc71; color: white; box-shadow: 0 4px 0 #27ae60; }
-.btn-off { background: #e74c3c; color: white; box-shadow: 0 4px 0 #c0392b; }
-.btn:active { transform: translateY(4px); box-shadow: none; }
 
-.irrigation-indicator { margin-top: 20px; font-size: 18px; }
-.status-text.on { color: #2ecc71; font-weight: bold; }
-.status-text.off { color: #e74c3c; font-weight: bold; }
-
-/* TABLES (Istoric) */
-.history-table {
-    width: 100%; border-collapse: collapse;
-    background: white; border-radius: 10px; overflow: hidden;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+.btn {
+    width: 220px;
+    height: 60px;
+    border: none;
+    border-radius: 12px;
+    font-weight: bold;
+    font-size: 16px;
+    cursor: pointer;
+    transition: 0.3s;
+    text-transform: uppercase;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 10px;
+    color: white;
 }
-.history-table th { background: #2e8b57; color: white; padding: 15px; }
-.history-table td { padding: 12px; border-bottom: 1px solid #eee; text-align: center; }
-.history-table tr:hover { background: #f9f9f9; }
 
-/* 🔥 FIX COMPLET DROPDOWN PORNEȘTE */
+.btn-on {
+    background: #2ecc71;
+    box-shadow: 0 4px 0 #27ae60;
+}
+
+.btn-off {
+    background: #e74c3c;
+    box-shadow: 0 4px 0 #c0392b;
+}
+
+.btn:active {
+    transform: translateY(4px);
+    box-shadow: none;
+}
+
+.dropdown-btn:disabled {
+    background: #95a5a6;
+    box-shadow: 0 4px 0 #7f8c8d;
+    cursor: not-allowed;
+}
+
+/* DROPDOWN PORNEȘTE */
 .dropdown-start {
     position: relative;
     display: inline-block;
-    margin: 10px; /* Preia marginea butonului pentru aliniere */
+    margin: 10px;
 }
 
 .dropdown-start .btn-on {
-    margin: 0; /* Anulăm marginea dublă din interior */
-}
-
-.dropdown-btn {
-    min-width: 180px;
+    margin: 0;
 }
 
 .dropdown-content {
     display: none;
     position: absolute;
-    top: 100%; /* Se deschide exact sub buton */
+    top: 100%;
     left: 0;
-    width: 100%; /* Ia exact lățimea butonului PORNEȘTE */
+    width: 220px;
     background: white;
     box-shadow: 0 6px 18px rgba(0,0,0,0.18);
     border-radius: 10px;
@@ -199,7 +220,7 @@ header h1 {
     border: none;
     background: white;
     cursor: pointer;
-    text-align: center; /* Centrăm textul minutelor */
+    text-align: center;
     font-weight: bold;
     color: #2c3e50;
     transition: 0.2s;
@@ -210,95 +231,28 @@ header h1 {
     color: #2e8b57;
 }
 
-/* Afișare meniu la trecerea mouse-ului */
 .dropdown-start:hover .dropdown-content {
     display: block;
 }
-.auto-actuator-status {
-    margin-top: 15px;
-    padding: 12px 18px;
-    border-radius: 12px;
-    font-size: 16px;
-    font-weight: bold;
-    display: inline-block;
-}
 
-.auto-ok {
-    background: #d4edda;
-    color: #155724;
-}
-
-.auto-warning {
-    background: #fff3cd;
-    color: #856404;
-}
-.output-select {
-    padding: 15px 20px;
-    border: none;
-    border-radius: 10px;
-    font-weight: bold;
-    margin: 10px;
-    background: #f1c40f;
-    color: #2c3e50;
-    cursor: pointer;
-}
-
-.dropdown-btn:disabled {
-    background: #95a5a6;
-    box-shadow: 0 4px 0 #7f8c8d;
-    cursor: not-allowed;
-}
+/* DROPDOWN IEȘIRI MULTIPLE */
 .multi-select {
     position: relative;
     width: 220px;
     min-width: 220px;
+    margin: 10px;
 }
 
 .multi-select-btn {
     width: 220px;
     height: 60px;
-
     background: #f1c40f;
     color: white;
-
-    border: none;
-    border-radius: 12px;
-
-    font-weight: bold;
-    font-size: 16px;
-
-    cursor: pointer;
-
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-.btn-group {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 30px;
-    flex-wrap: wrap;
-}
-
-.multi-select {
-    position: relative;
-    width: 220px;
-    min-width: 220px;
-    margin: 10px;
-}
-
-.multi-select-btn {
-    width: 220px;
-    height: 56px;
-    background: #f1c40f;
-    color: #111;
     border: none;
     border-radius: 12px;
     font-weight: bold;
-    cursor: pointer;
     font-size: 16px;
-
+    cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -333,4 +287,73 @@ header h1 {
 
 .multi-select:hover .multi-select-content {
     display: block;
+}
+
+/* STATUS IRIGAȚIE */
+.irrigation-indicator {
+    margin-top: 25px;
+    font-size: 22px;
+    font-weight: 600;
+}
+
+.status-text {
+    font-weight: bold;
+}
+
+.status-text.on {
+    color: #2ecc71;
+}
+
+.status-text.off {
+    color: #e74c3c;
+}
+
+.status-text.auto {
+    color: #3498db;
+}
+
+/* STATUS ACTUATOR */
+.auto-actuator-status {
+    margin-top: 15px;
+    padding: 12px 18px;
+    border-radius: 12px;
+    font-size: 16px;
+    font-weight: bold;
+    display: inline-block;
+}
+
+.auto-ok {
+    background: #d4edda;
+    color: #155724;
+}
+
+.auto-warning {
+    background: #fff3cd;
+    color: #856404;
+}
+
+/* TABLES */
+.history-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+}
+
+.history-table th {
+    background: #2e8b57;
+    color: white;
+    padding: 15px;
+}
+
+.history-table td {
+    padding: 12px;
+    border-bottom: 1px solid #eee;
+    text-align: center;
+}
+
+.history-table tr:hover {
+    background: #f9f9f9;
 }
