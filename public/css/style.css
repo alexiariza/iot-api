@@ -261,3 +261,64 @@ header h1 {
     align-items: center;
     justify-content: center;
 }
+.btn-group {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 30px;
+    flex-wrap: wrap;
+}
+
+.multi-select {
+    position: relative;
+    width: 220px;
+    min-width: 220px;
+    margin: 10px;
+}
+
+.multi-select-btn {
+    width: 220px;
+    height: 56px;
+    background: #f1c40f;
+    color: #111;
+    border: none;
+    border-radius: 12px;
+    font-weight: bold;
+    cursor: pointer;
+    font-size: 16px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.multi-select-content {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    width: 260px;
+    background: white;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.18);
+    border-radius: 10px;
+    z-index: 200;
+    padding: 10px;
+    text-align: left;
+}
+
+.multi-select-content label {
+    display: block;
+    padding: 8px 10px;
+    cursor: pointer;
+    font-size: 14px;
+    color: #2c3e50;
+}
+
+.multi-select-content label:hover {
+    background: #fff3cd;
+    border-radius: 6px;
+}
+
+.multi-select:hover .multi-select-content {
+    display: block;
+}
