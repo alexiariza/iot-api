@@ -98,14 +98,20 @@
 
             <div class="btn-group">
 
-                <div id="manualOutputs" class="manual-checkboxes">
-                    <label><input type="checkbox" class="manual-check" value="1" onchange="enableStartButton()"> C1 Temperatură aer</label>
-                    <label><input type="checkbox" class="manual-check" value="2" onchange="enableStartButton()"> C2 Umiditate aer</label>
-                    <label><input type="checkbox" class="manual-check" value="4" onchange="enableStartButton()"> C3 Presiune</label>
-                    <label><input type="checkbox" class="manual-check" value="8" onchange="enableStartButton()"> C4 Lumină</label>
-                    <label><input type="checkbox" class="manual-check" value="16" onchange="enableStartButton()"> C5 CO2</label>
-                    <label><input type="checkbox" class="manual-check" value="32" onchange="enableStartButton()"> C6 Temperatură apă</label>
-                    <label><input type="checkbox" class="manual-check" value="64" onchange="enableStartButton()"> C7 Sol uscat</label>
+                <div class="multi-select">
+                    <button type="button" id="multiSelectBtn" class="multi-select-btn">
+                        Alege ieșirile ▼
+                    </button>
+                
+                    <div id="manualOutputs" class="multi-select-content">
+                        <label><input type="checkbox" class="manual-check" value="1" onchange="enableStartButton()"> C1 Temperatură aer</label>
+                        <label><input type="checkbox" class="manual-check" value="2" onchange="enableStartButton()"> C2 Umiditate aer</label>
+                        <label><input type="checkbox" class="manual-check" value="4" onchange="enableStartButton()"> C3 Presiune</label>
+                        <label><input type="checkbox" class="manual-check" value="8" onchange="enableStartButton()"> C4 Lumină</label>
+                        <label><input type="checkbox" class="manual-check" value="16" onchange="enableStartButton()"> C5 CO2</label>
+                        <label><input type="checkbox" class="manual-check" value="32" onchange="enableStartButton()"> C6 Temperatură apă</label>
+                        <label><input type="checkbox" class="manual-check" value="64" onchange="enableStartButton()"> C7 Sol uscat</label>
+                    </div>
                 </div>
             
                 <div class="dropdown-start">
