@@ -98,16 +98,15 @@
 
             <div class="btn-group">
 
-                <select id="manualOutput" class="output-select" onchange="enableStartButton()">
-                    <option value="">Alege ieșirea</option>
-                    <option value="1">C1 Temperatură aer</option>
-                    <option value="2">C2 Umiditate aer</option>
-                    <option value="4">C3 Presiune</option>
-                    <option value="8">C4 Lumină</option>
-                    <option value="16">C5 CO2</option>
-                    <option value="32">C6 Temperatură apă</option>
-                    <option value="64">C7 Sol uscat</option>
-                </select>
+                <div id="manualOutputs" class="manual-checkboxes">
+                    <label><input type="checkbox" class="manual-check" value="1" onchange="enableStartButton()"> C1 Temperatură aer</label>
+                    <label><input type="checkbox" class="manual-check" value="2" onchange="enableStartButton()"> C2 Umiditate aer</label>
+                    <label><input type="checkbox" class="manual-check" value="4" onchange="enableStartButton()"> C3 Presiune</label>
+                    <label><input type="checkbox" class="manual-check" value="8" onchange="enableStartButton()"> C4 Lumină</label>
+                    <label><input type="checkbox" class="manual-check" value="16" onchange="enableStartButton()"> C5 CO2</label>
+                    <label><input type="checkbox" class="manual-check" value="32" onchange="enableStartButton()"> C6 Temperatură apă</label>
+                    <label><input type="checkbox" class="manual-check" value="64" onchange="enableStartButton()"> C7 Sol uscat</label>
+                </div>
             
                 <div class="dropdown-start">
                     <button id="startBtn" class="btn btn-on dropdown-btn" disabled>
@@ -258,18 +257,20 @@ async function setAuto() {
     }
 }
 
-function getOutputName(command) {
-    command = Number(command);
+function getOutputNames(command) {
+    command = Number(command || 0);
 
-    if (command === 1) return "C1 Temperatură aer";
-    if (command === 2) return "C2 Umiditate aer";
-    if (command === 4) return "C3 Presiune";
-    if (command === 8) return "C4 Lumină";
-    if (command === 16) return "C5 CO2";
-    if (command === 32) return "C6 Temperatură apă";
-    if (command === 64) return "C7 Sol uscat";
+    const active = [];
 
-    return "ieșire necunoscută";
+    if (command & 1) active.push("C1 Temperatură aer");
+    if (command & 2) active.push("C2 Umiditate aer");
+    if (command & 4) active.push("C3 Presiune");
+    if (command & 8) active.push("C4 Lumină");
+    if (command & 16) active.push("C5 CO2");
+    if (command & 32) active.push("C6 Temperatură apă");
+    if (command & 64) active.push("C7 Sol uscat");
+
+    return active.length ? active.join(" | ") : "nicio ieșire";
 }
 
 async function loadControlState() {
@@ -282,9 +283,9 @@ async function loadControlState() {
         if (data.manual_control) {
             if (Number(data.command) !== 0) {
                 if (data.duration && data.duration > 0) {
-                    statusText.innerText = `PORNITĂ (MANUAL - ${getOutputName(data.command)} - ${data.duration} min)`;
+                    statusText.innerText = `PORNITĂ (MANUAL - ${getOutputNames(data.command)} - ${data.duration} min)`;
                 } else {
-                    statusText.innerText = `PORNITĂ (MANUAL - ${getOutputName(data.command)})`;
+                    statusText.innerText = `PORNITĂ (MANUAL - ${getOutputNames(data.command)})`;
                 }
 
                 statusText.className = "status-text on";
@@ -335,25 +336,35 @@ function updateManualActuatorStatus(cmd) {
         el.innerText = "Actuator MANUAL: OPRIT";
         el.className = "auto-actuator-status auto-ok";
     } else {
-        el.innerText = "Actuator MANUAL activ: " + getOutputName(cmd);
+        el.innerText = "Actuator MANUAL activ: " + getOutputNames(cmd);
         el.className = "auto-actuator-status auto-warning";
     }
 }
 
+function getSelectedManualCommand() {
+    const checks = document.querySelectorAll(".manual-check:checked");
+    let cmd = 0;
+
+    checks.forEach(ch => {
+        cmd += Number(ch.value);
+    });
+
+    return cmd;
+}
+
 function enableStartButton() {
-    const selected = document.getElementById("manualOutput").value;
-    document.getElementById("startBtn").disabled = selected === "";
+    const cmd = getSelectedManualCommand();
+    document.getElementById("startBtn").disabled = cmd === 0;
 }
 
 function startSelectedOutput(duration) {
-    const selected = document.getElementById("manualOutput").value;
+    const cmd = getSelectedManualCommand();
 
-    if (selected === "") {
-        alert("Selectează mai întâi ieșirea!");
+    if (cmd === 0) {
+        alert("Selectează cel puțin o ieșire!");
         return;
     }
 
-    const cmd = parseInt(selected);
     controlIrigation(cmd, duration);
 }
 
