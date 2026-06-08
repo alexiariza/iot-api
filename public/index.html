@@ -195,13 +195,13 @@ async function loadData() {
 }
 
 function updateStatus(d) {
-    setStatus("temp_status", d.temperature, 28, false, "Temp. MARE", "Temp. OK");
+    setStatus("temp_status", d.temperature, 30, false, "Temp. MARE", "Temp. OK");
     setStatus("hum_status", d.humidity, 40, true, "Aer USCAT", "Umiditate OK");
     setStatus("press_status", d.pressure, 1000, true, "Presiune MICĂ", "Presiune OK");
     setStatus("light_status", d.illuminance, 25, true, "Lumină MICĂ", "Lumină OK");
     setStatus("co2_status", d.co2, 3080, false, "CO2 RIDICAT", "CO2 OK");
     setStatus("soil_status", d.soil, 35, true, "Sol USCAT", "Sol OK");
-    setStatus("water_status", d.water_temp, 25, false, "Apă CALDĂ", "Apă OK");
+    setStatus("water_status", d.water_temp, 30, false, "Apă CALDĂ", "Apă OK");
 }
 
 function setStatus(id, val, limit, reverse, warnText, okText) {
