@@ -96,21 +96,38 @@
         <div class="control-panel">
             <h3>Control Sistem Irigație</h3>
 
-            <div class="btn-group">
-                <div class="dropdown-start">
-                    <button class="btn btn-on dropdown-btn">PORNEȘTE ▼</button>
-                    <div class="dropdown-content">
-                        <button onclick="controlIrigation(1, 1)">1 minut</button>
-                        <button onclick="controlIrigation(1, 3)">3 minute</button>
-                        <button onclick="controlIrigation(1, 5)">5 minute</button>
-                        <button onclick="controlIrigation(1, 10)">10 minute</button>
-                        <button onclick="controlIrigation(1, 15)">15 minute</button>
-                    </div>
-                </div>
+           <div class="btn-group">
 
-                <button class="btn btn-off" onclick="controlIrigation(0, 0)">OPREȘTE</button>
-                <button class="btn" style="background:#3498db;color:white;" onclick="setAuto()">AUTO</button>
+            <select id="manualOutput" class="output-select" onchange="enableStartButton()">
+                <option value="">Alege ieșirea</option>
+                <option value="1">C1 Temperatură aer</option>
+                <option value="2">C2 Umiditate aer</option>
+                <option value="4">C3 Presiune</option>
+                <option value="8">C4 Lumină</option>
+                <option value="16">C5 CO2</option>
+                <option value="32">C6 Temperatură apă</option>
+                <option value="64">C7 Sol uscat</option>
+            </select>
+        
+            <div class="dropdown-start">
+                <button id="startBtn" class="btn btn-on dropdown-btn" disabled>
+                    PORNEȘTE ▼
+                </button>
+        
+                <div class="dropdown-content">
+                    <button onclick="startSelectedOutput(1)">1 minut</button>
+                    <button onclick="startSelectedOutput(3)">3 minute</button>
+                    <button onclick="startSelectedOutput(5)">5 minute</button>
+                    <button onclick="startSelectedOutput(10)">10 minute</button>
+                    <button onclick="startSelectedOutput(15)">15 minute</button>
+                </div>
             </div>
+        
+            <button class="btn btn-off" onclick="controlIrigation(0, 0)">OPREȘTE</button>
+        
+            <button class="btn" style="background:#3498db;color:white;" onclick="setAuto()">AUTO</button>
+        
+        </div>
 
             <div id="irrigation-status" class="irrigation-indicator">
                 Stare actuală: <span class="status-text off">OPRITĂ</span>
@@ -282,7 +299,22 @@ async function loadControlState() {
         el.className = "auto-actuator-status auto-warning";
     }
 }
+function enableStartButton() {
+    const selected = document.getElementById("manualOutput").value;
+    document.getElementById("startBtn").disabled = selected === "";
+}
 
+function startSelectedOutput(duration) {
+    const selected = document.getElementById("manualOutput").value;
+
+    if (selected === "") {
+        alert("Selectează mai întâi ieșirea!");
+        return;
+    }
+
+    const cmd = parseInt(selected);
+    controlIrigation(cmd, duration);
+}
 loadData();
 loadControlState();
 
