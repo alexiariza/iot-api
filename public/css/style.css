@@ -130,14 +130,22 @@ header h1 {
     box-shadow: 0 4px 15px rgba(0,0,0,0.05);
 }
 .btn {
-    padding: 15px 40px;
+    width: 220px;
+    height: 60px;
+
     border: none;
-    border-radius: 10px;
+    border-radius: 12px;
+
     font-weight: bold;
+    font-size: 16px;
+
     cursor: pointer;
-    margin: 10px;
     transition: 0.3s;
     text-transform: uppercase;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 .btn-on { background: #2ecc71; color: white; box-shadow: 0 4px 0 #27ae60; }
 .btn-off { background: #e74c3c; color: white; box-shadow: 0 4px 0 #c0392b; }
@@ -248,14 +256,18 @@ header h1 {
 
 .multi-select-btn {
     width: 220px;
-    height: 56px;
+    height: 60px;
+
     background: #f1c40f;
-    color: #111;
+    color: white;
+
     border: none;
     border-radius: 12px;
+
     font-weight: bold;
-    cursor: pointer;
     font-size: 16px;
+
+    cursor: pointer;
 
     display: flex;
     align-items: center;
