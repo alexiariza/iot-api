@@ -96,42 +96,43 @@
         <div class="control-panel">
             <h3>Control Sistem Irigație</h3>
 
-           <div class="btn-group">
+            <div class="btn-group">
 
-            <select id="manualOutput" class="output-select" onchange="enableStartButton()">
-                <option value="">Alege ieșirea</option>
-                <option value="1">C1 Temperatură aer</option>
-                <option value="2">C2 Umiditate aer</option>
-                <option value="4">C3 Presiune</option>
-                <option value="8">C4 Lumină</option>
-                <option value="16">C5 CO2</option>
-                <option value="32">C6 Temperatură apă</option>
-                <option value="64">C7 Sol uscat</option>
-            </select>
-        
-            <div class="dropdown-start">
-                <button id="startBtn" class="btn btn-on dropdown-btn" disabled>
-                    PORNEȘTE ▼
-                </button>
-        
-                <div class="dropdown-content">
-                    <button onclick="startSelectedOutput(1)">1 minut</button>
-                    <button onclick="startSelectedOutput(3)">3 minute</button>
-                    <button onclick="startSelectedOutput(5)">5 minute</button>
-                    <button onclick="startSelectedOutput(10)">10 minute</button>
-                    <button onclick="startSelectedOutput(15)">15 minute</button>
+                <select id="manualOutput" class="output-select" onchange="enableStartButton()">
+                    <option value="">Alege ieșirea</option>
+                    <option value="1">C1 Temperatură aer</option>
+                    <option value="2">C2 Umiditate aer</option>
+                    <option value="4">C3 Presiune</option>
+                    <option value="8">C4 Lumină</option>
+                    <option value="16">C5 CO2</option>
+                    <option value="32">C6 Temperatură apă</option>
+                    <option value="64">C7 Sol uscat</option>
+                </select>
+            
+                <div class="dropdown-start">
+                    <button id="startBtn" class="btn btn-on dropdown-btn" disabled>
+                        PORNEȘTE ▼
+                    </button>
+            
+                    <div class="dropdown-content">
+                        <button onclick="startSelectedOutput(1)">1 minut</button>
+                        <button onclick="startSelectedOutput(3)">3 minute</button>
+                        <button onclick="startSelectedOutput(5)">5 minute</button>
+                        <button onclick="startSelectedOutput(10)">10 minute</button>
+                        <button onclick="startSelectedOutput(15)">15 minute</button>
+                    </div>
                 </div>
+            
+                <button class="btn btn-off" onclick="controlIrigation(0, 0)">OPREȘTE</button>
+            
+                <button class="btn" style="background:#3498db;color:white;" onclick="setAuto()">AUTO</button>
+            
             </div>
-        
-            <button class="btn btn-off" onclick="controlIrigation(0, 0)">OPREȘTE</button>
-        
-            <button class="btn" style="background:#3498db;color:white;" onclick="setAuto()">AUTO</button>
-        
-        </div>
 
             <div id="irrigation-status" class="irrigation-indicator">
                 Stare actuală: <span class="status-text off">OPRITĂ</span>
             </div>
+
             <div id="auto-actuator-status" class="auto-actuator-status">
                 Actuator AUTO: se așteaptă date...
             </div>
@@ -247,6 +248,20 @@ async function setAuto() {
     }
 }
 
+function getOutputName(command) {
+    command = Number(command);
+
+    if (command === 1) return "C1 Temperatură aer";
+    if (command === 2) return "C2 Umiditate aer";
+    if (command === 4) return "C3 Presiune";
+    if (command === 8) return "C4 Lumină";
+    if (command === 16) return "C5 CO2";
+    if (command === 32) return "C6 Temperatură apă";
+    if (command === 64) return "C7 Sol uscat";
+
+    return "ieșire necunoscută";
+}
+
 async function loadControlState() {
     try {
         const res = await fetch("https://iot-api-1-5qfd.onrender.com/get_control");
@@ -255,11 +270,11 @@ async function loadControlState() {
         const statusText = document.querySelector(".status-text");
 
         if (data.manual_control) {
-            if (data.state === 1) {
+            if (Number(data.command) !== 0) {
                 if (data.duration && data.duration > 0) {
-                    statusText.innerText = `PORNITĂ (MANUAL - ${data.duration} min)`;
+                    statusText.innerText = `PORNITĂ (MANUAL - ${getOutputName(data.command)} - ${data.duration} min)`;
                 } else {
-                    statusText.innerText = "PORNITĂ (MANUAL)";
+                    statusText.innerText = `PORNITĂ (MANUAL - ${getOutputName(data.command)})`;
                 }
 
                 statusText.className = "status-text on";
@@ -276,7 +291,8 @@ async function loadControlState() {
         console.error(e);
     }
 }
-    function updateAutoActuatorStatus(cmd) {
+
+function updateAutoActuatorStatus(cmd) {
     const el = document.getElementById("auto-actuator-status");
 
     cmd = Number(cmd || 0);
@@ -299,6 +315,7 @@ async function loadControlState() {
         el.className = "auto-actuator-status auto-warning";
     }
 }
+
 function enableStartButton() {
     const selected = document.getElementById("manualOutput").value;
     document.getElementById("startBtn").disabled = selected === "";
@@ -315,6 +332,7 @@ function startSelectedOutput(duration) {
     const cmd = parseInt(selected);
     controlIrigation(cmd, duration);
 }
+
 loadData();
 loadControlState();
 
