@@ -83,7 +83,7 @@ app.post("/command", (req, res) => {
 
     manual_control = true;
     manual_command = Number(command || 0);
-    manual_duration = manual_command !== 0 ? Number(duration || 0) : 0;
+    manual_duration = manual_command !== 0 ? Math.max(Number(duration || 0), 2) : 0;
 
     if (irrigationTimer) {
       clearTimeout(irrigationTimer);
