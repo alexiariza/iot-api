@@ -439,3 +439,49 @@ header h1 {
 .inactive-node button:hover {
     background: #7f8c8d;
 }
+.node-select-page {
+    min-height: calc(100vh - 80px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.node-card {
+    background: white;
+    width: 700px;
+    padding: 40px;
+    border-radius: 18px;
+    text-align: center;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.08);
+}
+
+.node-selector {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+}
+
+.node-description {
+    max-width: 550px;
+    font-size: 16px;
+    color: #2c3e50;
+    line-height: 1.5;
+}
+
+.node-selector .multi-select {
+    width: 260px;
+}
+
+.node-selector .multi-select-btn {
+    width: 260px;
+}
+
+.node-selector .multi-select-content {
+    width: 260px;
+}
+
+.node-selector .multi-select-content label {
+    text-align: center;
+    font-weight: bold;
+}
