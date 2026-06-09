@@ -413,3 +413,29 @@ header h1 {
 .sensor-node button:hover {
     background: #256f46;
 }
+.node-card {
+    width: 850px;
+}
+
+.node-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 25px;
+}
+
+.inactive-node {
+    border-color: #95a5a6;
+    background: #f8f9fa;
+}
+
+.inactive-node h3 {
+    color: #7f8c8d;
+}
+
+.inactive-node button {
+    background: #95a5a6;
+}
+
+.inactive-node button:hover {
+    background: #7f8c8d;
+}
