@@ -77,6 +77,22 @@ function selectNode(id, text) {
     const btn =
         document.getElementById("openDashboardBtn");
 
+    if (id === "sensor1") {
+
+        description.innerText =
+            "Nodul senzor 1";
+
+        btn.disabled = false;
+    }
+
+    if (id === "sensor2") {
+
+        description.innerText =
+            "Nodul senzor 2";
+
+        btn.disabled = false;
+    }
+}
 
 function openDashboard() {
 
