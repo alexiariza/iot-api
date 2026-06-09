@@ -27,8 +27,7 @@ app.use(express.static(path.join(__dirname, "public")));
 // ================= CONTROL GLOBAL =================
 let manual_control = false;
 let manual_command = 0;
-let manual_duration = 0;          // durata folosită intern pentru timer
-let manual_duration_display = 0;  // durata afișată în interfață
+let manual_duration = 0;
 let irrigationTimer = null;
 
 // ================= DB =================
@@ -73,7 +72,7 @@ app.get("/get_control", (req, res) => {
   res.json({
     manual_control,
     command: manual_command,
-    duration: manual_duration_display
+    duration: manual_duration
   });
 });
 
@@ -82,16 +81,9 @@ app.post("/command", (req, res) => {
   try {
     const { command, duration } = req.body;
 
-    const selectedDuration = Number(duration || 0);
-
     manual_control = true;
     manual_command = Number(command || 0);
-
-    manual_duration_display = manual_command !== 0 ? selectedDuration : 0;
-
-    manual_duration = manual_command !== 0
-      ? Math.max(selectedDuration, 2)
-      : 0;
+    manual_duration = manual_command !== 0 ? Number(duration || 0) : 0;
 
     if (irrigationTimer) {
       clearTimeout(irrigationTimer);
@@ -102,7 +94,6 @@ app.post("/command", (req, res) => {
       irrigationTimer = setTimeout(() => {
         manual_command = 0;
         manual_duration = 0;
-        manual_duration_display = 0;
         irrigationTimer = null;
 
         console.log("⏰ Timp expirat -> OPRIRE MANUALĂ");
@@ -111,14 +102,13 @@ app.post("/command", (req, res) => {
 
     console.log("🎮 MANUAL:", {
       command: manual_command,
-      duration_selected: manual_duration_display,
-      duration_internal: manual_duration
+      duration: manual_duration
     });
 
     res.json({
       status: "manual mode ON",
       command: manual_command,
-      duration: manual_duration_display
+      duration: manual_duration
     });
 
   } catch (err) {
@@ -132,7 +122,6 @@ app.post("/auto", (req, res) => {
   manual_control = false;
   manual_command = 0;
   manual_duration = 0;
-  manual_duration_display = 0;
 
   if (irrigationTimer) {
     clearTimeout(irrigationTimer);
