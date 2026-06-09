@@ -16,6 +16,12 @@ app.use(express.json());
 // ================= PUBLIC =================
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+
+// ================= ROOT =================
+app.get("/", (req, res) => {
+  res.sendFile(path.join(__dirname, "public/select-node.html"));
+});
+
 app.use(express.static(path.join(__dirname, "public")));
 
 // ================= CONTROL GLOBAL =================
@@ -60,11 +66,6 @@ async function initDB() {
 }
 
 initDB();
-
-// ================= ROOT =================
-app.get("/", (req, res) => {
-  res.sendFile(path.join(__dirname, "public/select-node.html"));
-});
 
 // ================= GET CONTROL =================
 app.get("/get_control", (req, res) => {
