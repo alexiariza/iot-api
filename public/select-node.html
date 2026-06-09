@@ -1,41 +1,26 @@
-<!DOCTYPE html>
-<html lang="ro">
-<head>
-    <meta charset="UTF-8">
-    <title>Selectare nod senzor</title>
-    <link rel="stylesheet" href="css/style.css">
-</head>
-<body>
+<div class="node-selector">
 
-<header>
-    <h1>Sistem irigații inteligente</h1>
-</header>
+    <div class="multi-select">
+        <button type="button" id="nodeSelectBtn" class="multi-select-btn">
+            Selectează nodul ▼
+        </button>
 
-<div class="node-select-page">
-    <div class="node-card">
-        <h2>Selectare nod senzor</h2>
+        <div class="multi-select-content">
+            <label onclick="selectNode('sensor1','Nod senzor 1')">
+                Nod senzor 1
+            </label>
 
-        <div class="node-grid">
-            <div class="sensor-node">
-                <h3>Nod senzor 1</h3>
-                <p>Temperatură aer, umiditate aer, presiune, lumină, CO₂, temperatură apă și umiditate sol.</p>
-
-                <button onclick="window.location.href='index.html?node=sensor1'">
-                    Accesează dashboard
-                </button>
-            </div>
-
-            <div class="sensor-node inactive-node">
-                <h3>Nod senzor 2</h3>
-                <p>Nod pregătit pentru extinderea sistemului. Poate fi configurat ulterior pentru o altă zonă de monitorizare.</p>
-
-                <button onclick="alert('Nodul senzor 2 nu este configurat momentan.')">
-                    Indisponibil momentan
-                </button>
-            </div>
+            <label onclick="selectNode('sensor2','Nod senzor 2')">
+                Nod senzor 2
+            </label>
         </div>
     </div>
-</div>
 
-</body>
-</html>
+    <button id="openDashboardBtn"
+            class="btn btn-on"
+            disabled
+            onclick="openDashboard()">
+        Accesează dashboard
+    </button>
+
+</div>
