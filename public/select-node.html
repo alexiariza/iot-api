@@ -1,26 +1,120 @@
-<div class="node-selector">
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Selectare nod senzor</title>
 
-    <div class="multi-select">
-        <button type="button" id="nodeSelectBtn" class="multi-select-btn">
-            Selectează nodul ▼
-        </button>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
 
-        <div class="multi-select-content">
-            <label onclick="selectNode('sensor1','Nod senzor 1')">
-                Nod senzor 1
-            </label>
+<header>
+    <h1>Sistem irigații inteligente</h1>
+</header>
 
-            <label onclick="selectNode('sensor2','Nod senzor 2')">
-                Nod senzor 2
-            </label>
+<div class="node-select-page">
+
+    <div class="node-card">
+
+        <h2>Selectare nod senzor</h2>
+
+        <div class="node-selector">
+
+            <div class="multi-select">
+
+                <button type="button"
+                        id="nodeSelectBtn"
+                        class="multi-select-btn">
+                    Selectează nodul ▼
+                </button>
+
+                <div class="multi-select-content">
+
+                    <label onclick="selectNode('sensor1','Nod senzor 1')">
+                        Nod senzor 1
+                    </label>
+
+                    <label onclick="selectNode('sensor2','Nod senzor 2')">
+                        Nod senzor 2
+                    </label>
+
+                </div>
+
+            </div>
+
+            <p id="nodeDescription" class="node-description">
+                Selectează nodul senzor pentru care dorești să accesezi dashboard-ul.
+            </p>
+
+            <button id="openDashboardBtn"
+                    class="btn btn-on"
+                    disabled
+                    onclick="openDashboard()">
+                Accesează dashboard
+            </button>
+
         </div>
+
     </div>
 
-    <button id="openDashboardBtn"
-            class="btn btn-on"
-            disabled
-            onclick="openDashboard()">
-        Accesează dashboard
-    </button>
-
 </div>
+
+<script>
+
+let selectedNode = null;
+
+function selectNode(id, text) {
+
+    selectedNode = id;
+
+    document.getElementById("nodeSelectBtn").innerText =
+        text + " ▼";
+
+    const description =
+        document.getElementById("nodeDescription");
+
+    const btn =
+        document.getElementById("openDashboardBtn");
+
+    if (id === "sensor1") {
+
+        description.innerText =
+            "Nodul senzor 1 este activ și permite monitorizarea temperaturii aerului, umidității aerului, presiunii, iluminării, nivelului de CO₂, temperaturii apei și umidității solului.";
+
+        btn.disabled = false;
+    }
+
+    if (id === "sensor2") {
+
+        description.innerText =
+            "Nodul senzor 2 este rezervat pentru extinderea viitoare a sistemului.";
+
+        btn.disabled = false;
+    }
+}
+
+function openDashboard() {
+
+    if (!selectedNode) {
+        alert("Selectează un nod senzor.");
+        return;
+    }
+
+    if (selectedNode === "sensor2") {
+
+        alert(
+            "Nodul senzor 2 nu este configurat momentan."
+        );
+
+        return;
+    }
+
+    window.location.href =
+        "index.html?node=" + selectedNode;
+}
+
+</script>
+
+</body>
+</html>
