@@ -15,13 +15,24 @@
     <div class="node-card">
         <h2>Selectare nod senzor</h2>
 
-        <div class="sensor-node">
-            <h3>Nod senzor 1</h3>
-            <p>Temperatură aer, umiditate aer, presiune, lumină, CO₂, temperatură apă și umiditate sol.</p>
+        <div class="node-grid">
+            <div class="sensor-node">
+                <h3>Nod senzor 1</h3>
+                <p>Temperatură aer, umiditate aer, presiune, lumină, CO₂, temperatură apă și umiditate sol.</p>
 
-            <button onclick="window.location.href='index.html?node=sensor1'">
-                Accesează dashboard
-            </button>
+                <button onclick="window.location.href='index.html?node=sensor1'">
+                    Accesează dashboard
+                </button>
+            </div>
+
+            <div class="sensor-node inactive-node">
+                <h3>Nod senzor 2</h3>
+                <p>Nod pregătit pentru extinderea sistemului. Poate fi configurat ulterior pentru o altă zonă de monitorizare.</p>
+
+                <button onclick="alert('Nodul senzor 2 nu este configurat momentan.')">
+                    Indisponibil momentan
+                </button>
+            </div>
         </div>
     </div>
 </div>
