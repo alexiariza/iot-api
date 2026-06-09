@@ -357,3 +357,59 @@ header h1 {
 .history-table tr:hover {
     background: #f9f9f9;
 }
+.node-select-page {
+    min-height: calc(100vh - 80px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: #f4f7f6;
+}
+
+.node-card {
+    background: white;
+    padding: 40px;
+    border-radius: 18px;
+    width: 480px;
+    text-align: center;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.08);
+}
+
+.node-card h2 {
+    color: #2c3e50;
+    margin-bottom: 30px;
+}
+
+.sensor-node {
+    border: 2px solid #2e8b57;
+    border-radius: 15px;
+    padding: 25px;
+    background: #f9fffb;
+}
+
+.sensor-node h3 {
+    color: #2e8b57;
+    margin-top: 0;
+}
+
+.sensor-node p {
+    color: #555;
+    font-size: 15px;
+    line-height: 1.5;
+}
+
+.sensor-node button {
+    width: 220px;
+    height: 55px;
+    background: #2e8b57;
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-weight: bold;
+    font-size: 15px;
+    cursor: pointer;
+    margin-top: 15px;
+}
+
+.sensor-node button:hover {
+    background: #256f46;
+}
